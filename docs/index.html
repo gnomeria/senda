@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Senda — a fast, git-native API client</title>
+  <meta name="description" content="Senda is a fast, lightweight, git-native API client where every collection is a plain folder of YAML. No cloud account, no proprietary format — open a collection, send requests, and commit the diff.">
+  <link rel="canonical" href="https://this-senda.github.io/senda/">
+
+  <!-- Icons -->
+  <link rel="icon" type="image/svg+xml" href="logo/senda-mark.svg">
+  <link rel="apple-touch-icon" href="logo/senda-mark-256.png">
+  <meta name="theme-color" content="#11111b">
+
+  <!-- Open Graph / Twitter -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Senda">
+  <meta property="og:title" content="Senda — a fast, git-native API client">
+  <meta property="og:description" content="Every collection is a plain folder of YAML. No cloud account, no proprietary format — open a collection, send requests, and commit the diff.">
+  <meta property="og:url" content="https://this-senda.github.io/senda/">
+  <meta property="og:image" content="https://this-senda.github.io/senda/screenshots/04-request-response.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Senda — a fast, git-native API client">
+  <meta name="twitter:description" content="Every collection is a plain folder of YAML. Open a collection, send requests, and commit the diff.">
+  <meta name="twitter:image" content="https://this-senda.github.io/senda/screenshots/04-request-response.png">
+
+  <script>document.documentElement.classList.add('js');</script>
+  <style>
+    /* ---- Catppuccin Mocha palette ---- */
+    :root {
+      --crust:#11111b; --mantle:#181825; --base:#1e1e2e;
+      --surface0:#313244; --surface1:#45475a; --surface2:#585b70;
+      --overlay0:#6c7086; --overlay1:#7f849c;
+      --subtext0:#a6adc8; --subtext1:#bac2de; --text:#cdd6f4;
+      --blue:#89b4fa; --sapphire:#74c7ec; --sky:#89dceb; --teal:#94e2d5;
+      --green:#a6e3a1; --yellow:#f9e2af; --peach:#fab387; --maroon:#eba0ac;
+      --red:#f38ba8; --mauve:#cba6f7; --pink:#f5c2e7; --lavender:#b4befe;
+
+      --brand: linear-gradient(120deg, var(--blue) 0%, var(--teal) 52%, var(--green) 100%);
+      --maxw: 1120px;
+      --radius: 16px;
+      --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --mono: "JetBrains Mono", "SF Mono", ui-monospace, "Cascadia Code", Menlo, Consolas, monospace;
+    }
+
+    *,*::before,*::after { box-sizing:border-box; }
+    html { scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
+    body {
+      margin:0; font-family:var(--font); color:var(--text);
+      background:var(--crust);
+      line-height:1.6; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+      overflow-x:hidden;
+    }
+    a { color:var(--blue); text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    img { max-width:100%; display:block; }
+    h1,h2,h3 { line-height:1.15; letter-spacing:-0.02em; margin:0 0 .5em; font-weight:700; }
+    ::selection { background:rgba(137,180,250,.30); }
+
+    .wrap { width:100%; max-width:var(--maxw); margin:0 auto; padding:0 24px; }
+    .grad-text {
+      background:var(--brand); -webkit-background-clip:text; background-clip:text;
+      -webkit-text-fill-color:transparent; color:transparent;
+    }
+    .eyebrow {
+      text-transform:uppercase; letter-spacing:.18em; font-size:.78rem; font-weight:600;
+      color:var(--teal); margin:0 0 14px;
+    }
+
+    /* ---- Buttons ---- */
+    .btn {
+      display:inline-flex; align-items:center; gap:.5em; cursor:pointer;
+      font:inherit; font-weight:600; font-size:.95rem;
+      padding:.72em 1.25em; border-radius:11px; border:1px solid transparent;
+      transition:transform .12s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
+      white-space:nowrap;
+    }
+    .btn:hover { text-decoration:none; transform:translateY(-2px); }
+    .btn-primary {
+      color:#11111b; background:var(--brand);
+      box-shadow:0 8px 24px -8px rgba(148,226,213,.55);
+    }
+    .btn-primary:hover { box-shadow:0 12px 30px -8px rgba(148,226,213,.7); }
+    .btn-ghost {
+      color:var(--text); background:rgba(205,214,244,.04); border-color:var(--surface1);
+    }
+    .btn-ghost:hover { background:rgba(205,214,244,.09); border-color:var(--surface2); }
+    .btn svg { width:18px; height:18px; }
+
+    /* ---- Nav ---- */
+    header.nav {
+      position:sticky; top:0; z-index:50;
+      backdrop-filter:saturate(140%) blur(12px);
+      background:rgba(17,17,27,.72);
+      border-bottom:1px solid rgba(49,50,68,.6);
+    }
+    .nav-inner { display:flex; align-items:center; gap:18px; height:64px; }
+    .brand-lockup { display:flex; align-items:center; gap:10px; font-weight:700; font-size:1.18rem; color:var(--text); }
+    .brand-lockup:hover { text-decoration:none; }
+    .brand-lockup img { width:28px; height:28px; border-radius:7px; }
+    .brand-lockup b { background:var(--brand); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+    .nav-links { display:flex; align-items:center; gap:26px; margin-left:auto; }
+    .nav-links a { color:var(--subtext1); font-size:.92rem; font-weight:500; }
+    .nav-links a:hover { color:var(--text); text-decoration:none; }
+    .nav-cta { display:inline-flex; align-items:center; gap:.5em; padding:.5em 1em; font-size:.88rem; }
+    .nav-toggle { display:none; margin-left:auto; background:none; border:0; color:var(--text); cursor:pointer; padding:6px; }
+    .nav-toggle svg { width:26px; height:26px; }
+
+    /* ---- Hero ---- */
+    .hero { position:relative; padding:84px 0 64px; overflow:hidden; }
+    .hero::before {
+      content:""; position:absolute; inset:-30% 0 auto; height:680px; z-index:-1;
+      background:
+        radial-gradient(58% 50% at 18% 8%, rgba(137,180,250,.16), transparent 70%),
+        radial-gradient(48% 46% at 88% 0%, rgba(166,227,161,.13), transparent 70%),
+        radial-gradient(40% 40% at 60% 30%, rgba(148,226,213,.10), transparent 70%);
+      filter:blur(6px);
+    }
+    .hero-grid { display:grid; grid-template-columns:1.04fr .96fr; gap:54px; align-items:center; }
+    .hero h1 { font-size:clamp(2.4rem, 5.4vw, 3.75rem); margin-bottom:18px; }
+    .hero p.lede { font-size:clamp(1.05rem,1.6vw,1.22rem); color:var(--subtext1); max-width:34ch; margin:0 0 28px; }
+    .hero-actions { display:flex; flex-wrap:wrap; gap:14px; margin-bottom:26px; }
+    .badges { display:flex; flex-wrap:wrap; gap:8px; }
+    .badge {
+      font-size:.76rem; font-weight:600; color:var(--subtext0);
+      border:1px solid var(--surface0); border-radius:999px; padding:.34em .8em;
+      background:rgba(24,24,37,.6);
+    }
+    .badge b { color:var(--teal); font-weight:700; }
+
+    /* App window frame */
+    .window {
+      border:1px solid var(--surface0); border-radius:var(--radius); overflow:hidden;
+      background:var(--mantle);
+      box-shadow:0 30px 70px -30px rgba(0,0,0,.85), 0 0 0 1px rgba(137,180,250,.06);
+    }
+    .window .titlebar {
+      display:flex; align-items:center; gap:7px; padding:11px 14px;
+      background:var(--base); border-bottom:1px solid var(--surface0);
+    }
+    .window .titlebar .dot { width:11px; height:11px; border-radius:50%; }
+    .dot.r{background:var(--red);} .dot.y{background:var(--yellow);} .dot.g{background:var(--green);}
+    .window .titlebar .t { margin-left:8px; font:600 .76rem var(--mono); color:var(--overlay1); }
+    .window img { width:100%; display:block; }
+
+    /* ---- Stats band ---- */
+    .stats { border-top:1px solid var(--surface0); border-bottom:1px solid var(--surface0); background:var(--mantle); }
+    .stats-grid { display:grid; grid-template-columns:repeat(5,1fr); }
+    .stat { padding:30px 18px; text-align:center; border-left:1px solid rgba(49,50,68,.55); }
+    .stat:first-child { border-left:0; }
+    .stat .n { font-size:1.7rem; font-weight:800; background:var(--brand); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+    .stat .l { font-size:.82rem; color:var(--subtext0); margin-top:4px; }
+
+    /* ---- Sections ---- */
+    section { padding:86px 0; }
+    .section-head { max-width:680px; margin:0 auto 52px; text-align:center; }
+    .section-head h2 { font-size:clamp(1.8rem,3.4vw,2.5rem); }
+    .section-head p { color:var(--subtext0); font-size:1.06rem; margin:0; }
+
+    /* Why cards */
+    .why-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:18px; }
+    .why-card {
+      border:1px solid var(--surface0); border-radius:var(--radius); padding:24px; background:var(--mantle);
+    }
+    .why-card .problem { display:flex; gap:9px; color:var(--subtext0); font-size:.92rem; margin-bottom:14px; }
+    .why-card .problem svg { width:18px; height:18px; flex:none; color:var(--maroon); margin-top:2px; }
+    .why-card .solution { display:flex; gap:9px; font-size:1.0rem; font-weight:600; color:var(--text); }
+    .why-card .solution svg { width:18px; height:18px; flex:none; color:var(--green); margin-top:3px; }
+    .why-card code { font-family:var(--mono); font-size:.86em; color:var(--teal); background:rgba(148,226,213,.10); padding:.1em .35em; border-radius:5px; }
+
+    /* Feature grid */
+    .feat-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:18px; }
+    .feat {
+      border:1px solid var(--surface0); border-radius:var(--radius); padding:26px 24px; background:var(--mantle);
+      transition:border-color .2s ease, transform .2s ease, background .2s ease;
+    }
+    .feat:hover { border-color:var(--surface2); transform:translateY(-3px); background:#1b1b29; }
+    .feat .ic {
+      width:42px; height:42px; border-radius:11px; display:grid; place-items:center; margin-bottom:16px;
+      background:rgba(137,180,250,.10); border:1px solid rgba(137,180,250,.18); color:var(--blue);
+    }
+    .feat .ic svg { width:22px; height:22px; }
+    .feat h3 { font-size:1.12rem; margin-bottom:8px; }
+    .feat p { margin:0; color:var(--subtext0); font-size:.95rem; }
+    .feat code { font-family:var(--mono); font-size:.84em; color:var(--teal); }
+
+    /* Data format split */
+    .split { display:grid; grid-template-columns:0.85fr 1.15fr; gap:22px; align-items:stretch; }
+    .code-card {
+      border:1px solid var(--surface0); border-radius:var(--radius); overflow:hidden; background:var(--mantle);
+      display:flex; flex-direction:column;
+    }
+    .code-card .head {
+      display:flex; align-items:center; gap:8px; padding:11px 16px;
+      background:var(--base); border-bottom:1px solid var(--surface0);
+      font:600 .8rem var(--mono); color:var(--overlay1);
+    }
+    .code-card .head svg { width:15px; height:15px; color:var(--overlay0); }
+    .code-card pre {
+      margin:0; padding:20px; overflow:auto; flex:1;
+      font-family:var(--mono); font-size:.84rem; line-height:1.7; color:var(--subtext1);
+    }
+    pre .k { color:var(--mauve); }     /* key */
+    pre .s { color:var(--green); }     /* string */
+    pre .v { color:var(--peach); }     /* value / number */
+    pre .c { color:var(--overlay0); font-style:italic; } /* comment */
+    pre .m { color:var(--blue); }      /* method / var */
+    pre .d { color:var(--surface2); }  /* tree decoration */
+    pre .p { color:var(--teal); }      /* path / dir */
+
+    /* Run modes */
+    .modes { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+    .mode { border:1px solid var(--surface0); border-radius:var(--radius); overflow:hidden; background:var(--mantle); }
+    .mode .shot { background:var(--crust); border-bottom:1px solid var(--surface0); }
+    .mode .shot img { width:100%; }
+    .mode .body { padding:20px 22px 24px; }
+    .mode .tag { font:600 .72rem var(--mono); letter-spacing:.04em; color:var(--teal); text-transform:uppercase; }
+    .mode h3 { font-size:1.18rem; margin:6px 0 8px; }
+    .mode p { margin:0 0 12px; color:var(--subtext0); font-size:.93rem; }
+    .mode p.cmd { font-family:var(--mono); font-size:.82rem; color:var(--blue); background:var(--base); border:1px solid var(--surface0); border-radius:8px; padding:.6em .8em; margin:0; }
+
+    /* Gallery */
+    .gallery { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    .gallery figure { margin:0; border:1px solid var(--surface0); border-radius:12px; overflow:hidden; background:var(--mantle); }
+    .gallery figure img { width:100%; transition:transform .35s ease; }
+    .gallery figure:hover img { transform:scale(1.04); }
+    .gallery figcaption { padding:10px 14px; font-size:.82rem; color:var(--subtext0); border-top:1px solid var(--surface0); }
+
+    /* Install */
+    .install-card { max-width:760px; margin:0 auto; border:1px solid var(--surface0); border-radius:var(--radius); overflow:hidden; background:var(--mantle); }
+    .tabs { display:flex; flex-wrap:wrap; gap:2px; padding:8px; background:var(--base); border-bottom:1px solid var(--surface0); }
+    .tab {
+      font:600 .86rem var(--font); color:var(--subtext0); background:none; border:0; cursor:pointer;
+      padding:.6em 1em; border-radius:9px; transition:background .15s, color .15s;
+    }
+    .tab:hover { color:var(--text); }
+    .tab[aria-selected="true"] { color:#11111b; background:var(--brand); }
+    .panel { padding:24px; display:none; }
+    .panel[data-active="true"] { display:block; }
+    .panel p.note { margin:14px 0 0; font-size:.86rem; color:var(--subtext0); }
+    .terminal {
+      display:flex; align-items:flex-start; gap:14px;
+      background:var(--crust); border:1px solid var(--surface0); border-radius:11px;
+      padding:16px 18px; font-family:var(--mono); font-size:.86rem; color:var(--text);
+    }
+    .terminal .prompt { color:var(--green); user-select:none; }
+    .terminal code { flex:1; overflow:auto; white-space:pre; }
+    .copy {
+      background:none; border:1px solid var(--surface1); color:var(--subtext0); cursor:pointer;
+      border-radius:7px; padding:5px 7px; transition:.15s; flex:none;
+    }
+    .copy:hover { color:var(--text); border-color:var(--surface2); }
+    .copy svg { width:15px; height:15px; display:block; }
+    .copy.copied { color:var(--green); border-color:var(--green); }
+
+    /* Callout */
+    .callout {
+      max-width:760px; margin:0 auto; border:1px solid var(--surface0); border-left:3px solid var(--mauve);
+      border-radius:12px; padding:26px 28px; background:linear-gradient(180deg, rgba(203,166,247,.06), transparent);
+    }
+    .callout h3 { display:flex; align-items:center; gap:10px; font-size:1.2rem; }
+    .callout h3 svg { width:22px; height:22px; color:var(--mauve); }
+    .callout p { margin:.6em 0 0; color:var(--subtext1); font-size:.98rem; }
+    .callout a { color:var(--lavender); }
+
+    /* CTA strip */
+    .cta { text-align:center; }
+    .cta-box {
+      border:1px solid var(--surface0); border-radius:24px; padding:56px 28px;
+      background:
+        radial-gradient(60% 120% at 50% 0%, rgba(137,180,250,.12), transparent 70%),
+        var(--mantle);
+    }
+    .cta-box h2 { font-size:clamp(1.8rem,3.6vw,2.6rem); }
+    .cta-box p { color:var(--subtext0); max-width:52ch; margin:0 auto 28px; }
+    .cta-actions { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+
+    /* Footer */
+    footer { border-top:1px solid var(--surface0); background:var(--mantle); padding:56px 0 36px; }
+    .foot-grid { display:grid; grid-template-columns:1.6fr 1fr 1fr 1fr; gap:32px; }
+    .foot-brand .brand-lockup { margin-bottom:12px; }
+    .foot-brand p { color:var(--subtext0); font-size:.9rem; max-width:34ch; margin:0; }
+    .foot-col h4 { font-size:.78rem; text-transform:uppercase; letter-spacing:.12em; color:var(--overlay1); margin:0 0 14px; }
+    .foot-col a { display:block; color:var(--subtext1); font-size:.92rem; margin-bottom:9px; }
+    .foot-col a:hover { color:var(--text); text-decoration:none; }
+    .foot-bottom {
+      margin-top:44px; padding-top:24px; border-top:1px solid var(--surface0);
+      display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;
+      color:var(--overlay0); font-size:.85rem;
+    }
+
+    /* Reveal */
+    .js .reveal { opacity:0; transform:translateY(16px); transition:opacity .6s ease, transform .6s ease; }
+    .js .reveal.in { opacity:1; transform:none; }
+    @media (prefers-reduced-motion: reduce) {
+      .js .reveal { opacity:1; transform:none; transition:none; }
+      html { scroll-behavior:auto; }
+      .btn:hover, .feat:hover { transform:none; }
+    }
+
+    /* Responsive */
+    @media (max-width: 940px) {
+      .hero-grid { grid-template-columns:1fr; gap:40px; }
+      .hero p.lede { max-width:none; }
+      .stats-grid { grid-template-columns:repeat(3,1fr); }
+      .stat:nth-child(4) { border-left:0; }
+      .split { grid-template-columns:1fr; }
+      .modes { grid-template-columns:1fr; }
+      .gallery { grid-template-columns:repeat(2,1fr); }
+      .foot-grid { grid-template-columns:1fr 1fr; }
+      .foot-brand { grid-column:1 / -1; }
+    }
+    @media (max-width: 680px) {
+      .nav-links { display:none; }
+      .nav-links.open {
+        display:flex; flex-direction:column; align-items:flex-start; gap:16px;
+        position:absolute; top:64px; left:0; right:0; padding:20px 24px;
+        background:var(--crust); border-bottom:1px solid var(--surface0);
+      }
+      .nav-toggle { display:block; }
+      section { padding:64px 0; }
+      .stats-grid { grid-template-columns:repeat(2,1fr); }
+      .stat { border-left:0 !important; border-top:1px solid rgba(49,50,68,.55); }
+      .stat:nth-child(-n+2) { border-top:0; }
+      .gallery { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============ NAV ============ -->
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="brand-lockup" href="#top">
+        <img src="logo/senda-mark.svg" alt="Senda logo">
+        <b>senda</b>
+      </a>
+      <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <nav class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#why">Why Senda</a>
+        <a href="#format">Format</a>
+        <a href="#frontends">Frontends</a>
+        <a href="#install">Install</a>
+        <a href="https://github.com/this-senda/senda#readme">Docs</a>
+        <a class="btn btn-ghost nav-cta" href="https://github.com/this-senda/senda">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.5v-1.8c-3.2.7-3.9-1.4-3.9-1.4-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.6.8.5 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg>
+          GitHub
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <span id="top"></span>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="reveal">
+        <p class="eyebrow">Git-native API client</p>
+        <h1>API requests that<br>live in <span class="grad-text">git</span>.</h1>
+        <p class="lede">
+          Senda is a fast, lightweight API client where every collection is a
+          plain folder of YAML. No cloud account, no proprietary format — open a
+          collection, send requests, and commit the diff.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="https://github.com/this-senda/senda/releases" id="download-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+            Download
+          </a>
+          <a class="btn btn-ghost" href="https://github.com/this-senda/senda">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.5v-1.8c-3.2.7-3.9-1.4-3.9-1.4-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.6.8.5 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg>
+            View source
+          </a>
+        </div>
+        <div class="badges">
+          <span class="badge">MIT licensed</span>
+          <span class="badge">Linux · macOS · Windows</span>
+          <span class="badge"><b>~24 MB</b> binary</span>
+          <span class="badge"><b>~100 MB</b> RAM</span>
+          <span class="badge">Go + SolidJS</span>
+        </div>
+      </div>
+
+      <div class="reveal window" aria-hidden="false">
+        <div class="titlebar">
+          <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+          <span class="t">senda — desktop</span>
+        </div>
+        <img src="screenshots/walkthrough.gif" alt="Senda walkthrough: open a collection, send a request, inspect the response, run tests, switch theme" loading="eager" width="960" height="600">
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STATS ============ -->
+  <div class="stats">
+    <div class="wrap">
+      <div class="stats-grid">
+        <div class="stat"><div class="n">~24 MB</div><div class="l">release binary</div></div>
+        <div class="stat"><div class="n">~100 MB</div><div class="l">RAM at idle</div></div>
+        <div class="stat"><div class="n">100%</div><div class="l">plain YAML on disk</div></div>
+        <div class="stat"><div class="n">13</div><div class="l">built-in themes</div></div>
+        <div class="stat"><div class="n">3</div><div class="l">frontends, one engine</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ WHY ============ -->
+  <section id="why">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow">Why Senda</p>
+        <h2>Built for people who live in version control</h2>
+        <p>Existing API clients hide your work in the cloud or a proprietary blob. Senda keeps it in files you already track.</p>
+      </div>
+      <div class="why-grid">
+        <div class="why-card reveal">
+          <div class="problem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>Postman &amp; Insomnia store collections in the cloud or proprietary formats.</div>
+          <div class="solution"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Plain YAML files — <code>git diff</code> works on your requests.</span></div>
+        </div>
+        <div class="why-card reveal">
+          <div class="problem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>Electron apps ship 150 MB binaries and use 400 MB of RAM.</div>
+          <div class="solution"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Wails + native webview: ~24 MB binary, ~100 MB RAM.</span></div>
+        </div>
+        <div class="why-card reveal">
+          <div class="problem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>Bruno is close, but <code>.bru</code> files need custom tooling to read.</div>
+          <div class="solution"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Standard YAML, no custom DSL — readable by anything.</span></div>
+        </div>
+        <div class="why-card reveal">
+          <div class="problem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>Sync conflicts turn shared team collections into a nightmare.</div>
+          <div class="solution"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Collections are folders — merge conflicts resolve naturally.</span></div>
+        </div>
+        <div class="why-card reveal">
+          <div class="problem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>Heavy UI frameworks cause jank on large responses.</div>
+          <div class="solution"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>SolidJS + virtualized CodeMirror 6 — 20 MB JSON stays smooth.</span></div>
+        </div>
+        <div class="why-card reveal">
+          <div class="problem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>Secrets get committed by accident or scattered across tools.</div>
+          <div class="solution"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span><code>*.secret.yaml</code> is gitignored and merged only at send-time.</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FEATURES ============ -->
+  <section id="features">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow">Features</p>
+        <h2>Everything you need for everyday API work</h2>
+        <p>A full request/response client — plus a test runner, mock server, load tester, and security scanner, all driven from the same files.</p>
+      </div>
+      <div class="feat-grid">
+        <div class="feat reveal">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="9" r="2.5"/><path d="M6 8.5v7M8.4 6.6c4 .2 7 1.3 7 4.4v.5"/></svg></div>
+          <h3>Git-native YAML</h3>
+          <p>One folder per collection, one YAML file per request. Fully trackable — your API requests live next to your code and <code>git diff</code> just works.</p>
+        </div>
+        <div class="feat reveal">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h7l-1 8 11-14h-7z"/></svg></div>
+          <h3>Full HTTP + GraphQL</h3>
+          <p>GET through OPTIONS, query, headers, and body with per-row toggles. JSON, form, multipart, and GraphQL with one-click schema introspection.</p>
+        </div>
+        <div class="feat reveal">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 5-9 5-9-5 9-5z"/><path d="M3 12l9 5 9-5M3 17l9 5 9-5"/></svg></div>
+          <h3>Environments &amp; secrets</h3>
+          <p><code>{{var}}</code> interpolation across URL, headers, and body, with dev/prod/staging files. Secrets stay in gitignored overlays, merged only at send-time.</p>
+        </div>
+        <div class="feat reveal">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg></div>
+          <h3>Assertions &amp; schema</h3>
+          <p>Per-request tests on status, timing, size, JSON path, headers, and regex — plus JSON Schema validation of the response body on every send.</p>
+        </div>
+        <div class="feat reveal">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 7 3 12 8 17"/><polyline points="16 7 21 12 16 17"/><line x1="13" y1="4" x2="11" y2="20"/></svg></div>
+          <h3>Pre/post scripting</h3>
+          <p>Shape a request before it goes out and extract tokens after it returns, in a sandboxed JS engine (Goja). Chain requests with <code>senda.setVar</code> / <code>getVar</code>.</p>
+        </div>
+        <div class="feat reveal">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 1 9 9"/><polyline points="3 17 3 12 8 12"/><polyline points="10 8 16 12 10 16 10 8"/></svg></div>
+          <h3>Folder runner &amp; load tests</h3>
+          <p>Run a whole folder sequentially with live results, or switch to concurrent virtual-user load testing reporting p50/p95/p99 latency and status mix.</p>
+        </div>
+        <div class="feat reveal">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><line x1="7" y1="7.5" x2="7.01" y2="7.5"/><line x1="7" y1="16.5" x2="7.01" y2="16.5"/></svg></div>
+          <h3>Mock server</h3>
+          <p>Spin up a local HTTP server straight from YAML — response templating, named scenarios, stateful CRUD resources, proxy passthrough, CORS, and hot-reload.</p>
+        </div>
+        <div class="feat reveal">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 3v6c0 5-3.5 8.5-8 11-4.5-2.5-8-6-8-11V5l8-3z"/></svg></div>
+          <h3>Security scanning</h3>
+          <p>Run an embedded pack of nuclei-compatible HTTP checks across every request under a folder. Filter by severity and tags; stream progress check-by-check.</p>
+        </div>
+        <div class="feat reveal">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12a7 7 0 0 1 14 0"/><path d="M2 12a10 10 0 0 1 20 0"/><circle cx="12" cy="12" r="2"/><line x1="12" y1="14" x2="12" y2="21"/></svg></div>
+          <h3>WebSocket &amp; SSE</h3>
+          <p>Connect to <code>ws://</code> / <code>wss://</code> endpoints or Server-Sent Events and watch the live message log — variables and auth resolve just like HTTP.</p>
+        </div>
+        <div class="feat reveal">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l6-6-6-6"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div>
+          <h3>Import &amp; codegen</h3>
+          <p>Import from curl, Postman v2, and OpenAPI 3. Export to curl, fetch, httpie, Python, and Go — or render the whole collection to Markdown / HTML docs.</p>
+        </div>
+        <div class="feat reveal">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="13" r="2.5"/><circle cx="8.5" cy="17.5" r="2.5"/><path d="M3 12a9 9 0 0 1 9-9c2.5 0 3.5 1.8 3 3.5"/></svg></div>
+          <h3>Command palette &amp; themes</h3>
+          <p>Fuzzy-search requests and actions with <code>Ctrl+K</code>. 13 built-in themes — Catppuccin, Nord, VS Code, and more — with light/dark/system mode.</p>
+        </div>
+        <div class="feat reveal">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><polyline points="7 9 10 12 7 15"/><line x1="13" y1="15" x2="17" y2="15"/></svg></div>
+          <h3>Desktop, TUI &amp; CLI</h3>
+          <p>The same send pipeline powers a native desktop app, a keyboard-driven terminal UI, and a headless CLI runner that drops straight into CI.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DATA FORMAT ============ -->
+  <section id="format">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow">The format</p>
+        <h2><code style="font-family:var(--mono);font-size:.7em;color:var(--teal)">git diff</code> on your API requests just works</h2>
+        <p>Collections are plain directories. Every request is one human-readable YAML file — no database, no binary blob, no lock-in.</p>
+      </div>
+      <div class="split">
+        <div class="code-card reveal">
+          <div class="head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+            my-api/
+          </div>
+<pre><span class="p">my-api/</span>
+<span class="d">├─</span> <span class="p">.senda/</span>            <span class="c"># config &amp; state</span>
+<span class="d">│  ├─</span> senda.meta.yaml
+<span class="d">│  ├─</span> <span class="p">environments/</span>
+<span class="d">│  │  ├─</span> dev.yaml
+<span class="d">│  │  └─</span> prod.<span class="m">secret</span>.yaml  <span class="c"># gitignored</span>
+<span class="d">│  └─</span> <span class="p">mocks/</span>
+<span class="d">└─</span> <span class="p">users/</span>
+<span class="d">   ├─</span> list-users.yaml
+<span class="d">   └─</span> <span class="v">create-user.yaml</span></pre>
+        </div>
+
+        <div class="code-card reveal">
+          <div class="head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/></svg>
+            users/create-user.yaml
+          </div>
+<pre><span class="k">name</span>: <span class="s">Create user</span>
+<span class="k">method</span>: <span class="m">POST</span>
+<span class="k">url</span>: <span class="s">"{{baseUrl}}/users"</span>
+<span class="k">headers</span>:
+  - { <span class="k">key</span>: Authorization, <span class="k">value</span>: <span class="s">"Bearer {{token}}"</span> }
+<span class="k">body</span>:
+  <span class="k">type</span>: <span class="v">json</span>
+  <span class="k">raw</span>: <span class="s">'{ "name": "Ada Lovelace" }'</span>
+<span class="k">asserts</span>:
+  - { <span class="k">target</span>: status, <span class="k">op</span>: eq, <span class="k">value</span>: <span class="s">"201"</span> }
+  - { <span class="k">target</span>: body, <span class="k">op</span>: contains, <span class="k">value</span>: <span class="s">Ada</span> }
+<span class="k">postScript</span>: <span class="s">|</span>
+  <span class="m">senda</span>.setVar(<span class="s">"userId"</span>, res.json.id);</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FRONTENDS ============ -->
+  <section id="frontends">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow">One engine, three ways to run</p>
+        <h2>Desktop, terminal, or CI</h2>
+        <p>Scripts, variables, secrets, assertions, and the cookie jar behave identically across all three — pick whichever fits the moment.</p>
+      </div>
+      <div class="modes">
+        <div class="mode reveal">
+          <div class="shot"><img src="screenshots/03-request-open.png" alt="Senda desktop app" loading="lazy"></div>
+          <div class="body">
+            <span class="tag">Desktop</span>
+            <h3>The full GUI</h3>
+            <p>A native 3-pane shell built with Wails — tree, request editor, response viewer — with tabs, theming, and a command palette.</p>
+            <p class="cmd">wails3 build → bin/senda-desktop</p>
+          </div>
+        </div>
+        <div class="mode reveal">
+          <div class="shot"><img src="screenshots/tui/01-three-pane.png" alt="Senda terminal UI" loading="lazy"></div>
+          <div class="body">
+            <span class="tag">Terminal</span>
+            <h3>senda-tui</h3>
+            <p>A keyboard-driven TUI on Bubble Tea — no webview, pure Go. Perfect over SSH, in tmux, or when you'd rather not leave the terminal.</p>
+            <p class="cmd">senda-tui -collection ./my-api</p>
+          </div>
+        </div>
+        <div class="mode reveal">
+          <div class="shot"><img src="screenshots/cli/01-run.png" alt="Senda CLI runner" loading="lazy"></div>
+          <div class="body">
+            <span class="tag">Headless</span>
+            <h3>senda-cli</h3>
+            <p>The same pipeline, scriptable in CI. Exits <code style="font-family:var(--mono);color:var(--green)">0</code> when every request passes, <code style="font-family:var(--mono);color:var(--red)">1</code> on any failure.</p>
+            <p class="cmd">senda-cli -collection ./my-api -env dev</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ GALLERY ============ -->
+  <section id="screenshots" style="padding-top:0;">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow">A closer look</p>
+        <h2>Polished where it counts</h2>
+      </div>
+      <div class="gallery">
+        <figure class="reveal"><img src="screenshots/04-request-response.png" alt="Sending a request — 201 Created, timing, response body" loading="lazy"><figcaption>Send &amp; inspect — status, timing, size at a glance</figcaption></figure>
+        <figure class="reveal"><img src="screenshots/07-assertions.png" alt="Assertion editor with pass/fail rows" loading="lazy"><figcaption>Assertions — target / operator / value, pass or fail</figcaption></figure>
+        <figure class="reveal"><img src="screenshots/12-mock-server.png" alt="Mock server with live routes and request log" loading="lazy"><figcaption>Mock server — routes, scenarios, live request log</figcaption></figure>
+        <figure class="reveal"><img src="screenshots/09-command-palette.png" alt="Command palette fuzzy search" loading="lazy"><figcaption>Command palette — <code style="font-family:var(--mono)">Ctrl+K</code> for everything</figcaption></figure>
+        <figure class="reveal"><img src="screenshots/15-code-generation.png" alt="Code generation to curl, fetch, python, go" loading="lazy"><figcaption>Codegen — curl, fetch, httpie, Python, Go</figcaption></figure>
+        <figure class="reveal"><img src="screenshots/11-theme-catppuccin-mocha.png" alt="App in Catppuccin Mocha theme" loading="lazy"><figcaption>13 themes — here in Catppuccin Mocha</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ INSTALL ============ -->
+  <section id="install">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow">Install</p>
+        <h2>Up and running in one line</h2>
+        <p>Prebuilt binaries for Linux, macOS, and Windows ship with every release — each bundles the desktop app and the headless CLI.</p>
+      </div>
+
+      <div class="install-card reveal">
+        <div class="tabs" role="tablist" aria-label="Install method">
+          <button class="tab" role="tab" aria-selected="true" data-tab="sh">Linux / macOS</button>
+          <button class="tab" role="tab" aria-selected="false" data-tab="ps">Windows</button>
+          <button class="tab" role="tab" aria-selected="false" data-tab="brew">Homebrew</button>
+          <button class="tab" role="tab" aria-selected="false" data-tab="winget">winget</button>
+        </div>
+
+        <div class="panel" data-panel="sh" data-active="true">
+          <div class="terminal">
+            <span class="prompt">$</span>
+            <code id="cmd-sh">curl -fsSL https://raw.githubusercontent.com/this-senda/senda/main/scripts/install.sh | sh</code>
+            <button class="copy" data-copy="cmd-sh" aria-label="Copy command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+          </div>
+          <p class="note">Installs into <code style="font-family:var(--mono)">~/.local/bin</code> and verifies the release SHA-256 before installing. On Linux the desktop window needs a WebKitGTK runtime — the installer prints the exact package if it's missing.</p>
+        </div>
+
+        <div class="panel" data-panel="ps">
+          <div class="terminal">
+            <span class="prompt">&gt;</span>
+            <code id="cmd-ps">irm https://raw.githubusercontent.com/this-senda/senda/main/scripts/install.ps1 | iex</code>
+            <button class="copy" data-copy="cmd-ps" aria-label="Copy command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+          </div>
+          <p class="note">Runs the PowerShell installer. WebView2 is bundled on Windows — no extra runtime needed.</p>
+        </div>
+
+        <div class="panel" data-panel="brew">
+          <div class="terminal">
+            <span class="prompt">$</span>
+            <code id="cmd-brew">brew install this-senda/tap/senda</code>
+            <button class="copy" data-copy="cmd-brew" aria-label="Copy command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+          </div>
+          <p class="note">Works on macOS and Linux via the Homebrew tap.</p>
+        </div>
+
+        <div class="panel" data-panel="winget">
+          <div class="terminal">
+            <span class="prompt">&gt;</span>
+            <code id="cmd-winget">winget install this-senda.Senda</code>
+            <button class="copy" data-copy="cmd-winget" aria-label="Copy command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+          </div>
+          <p class="note">Prefer Chocolatey? <code style="font-family:var(--mono)">choco install senda</code> works too.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HONEST NOTE ============ -->
+  <section style="padding-top:0;">
+    <div class="wrap">
+      <div class="callout reveal">
+        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/><line x1="9" y1="21" x2="15" y2="21"/></svg> How this was built</h3>
+        <p>
+          Honest disclosure: Senda is largely <b>vibe-coded</b> — most of the code,
+          tests, and docs were written with heavy AI assistance, with a human
+          steering the direction and deciding what shipped. It's young, lightly
+          used, and maintained by one person, so treat it as experimental. The
+          source is plain Go and YAML, so when in doubt, read the diff. Catch
+          something off? <a href="https://github.com/this-senda/senda/issues">Open an issue</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CTA ============ -->
+  <section class="cta" style="padding-top:0;">
+    <div class="wrap">
+      <div class="cta-box reveal">
+        <h2>Send your first request</h2>
+        <p>Open a folder of YAML, hit <code style="font-family:var(--mono);color:var(--teal)">Ctrl+Enter</code>, and commit the diff. That's the whole workflow.</p>
+        <div class="cta-actions">
+          <a class="btn btn-primary" href="https://github.com/this-senda/senda/releases">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+            Download Senda
+          </a>
+          <a class="btn btn-ghost" href="https://github.com/this-senda/senda#readme">Read the docs</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer>
+    <div class="wrap">
+      <div class="foot-grid">
+        <div class="foot-brand">
+          <a class="brand-lockup" href="#top"><img src="logo/senda-mark.svg" alt="Senda logo"><b>senda</b></a>
+          <p>A fast, lightweight, git-native API client for developers who live in terminals and version control.</p>
+        </div>
+        <div class="foot-col">
+          <h4>Product</h4>
+          <a href="#features">Features</a>
+          <a href="#why">Why Senda</a>
+          <a href="#format">Data format</a>
+          <a href="#install">Install</a>
+        </div>
+        <div class="foot-col">
+          <h4>Resources</h4>
+          <a href="https://github.com/this-senda/senda#readme">README</a>
+          <a href="roadmap/">Roadmap</a>
+          <a href="theming/">Theming</a>
+          <a href="https://github.com/this-senda/senda/blob/main/CHANGELOG.md">Changelog</a>
+        </div>
+        <div class="foot-col">
+          <h4>Project</h4>
+          <a href="https://github.com/this-senda/senda">GitHub</a>
+          <a href="https://github.com/this-senda/senda/releases">Releases</a>
+          <a href="https://github.com/this-senda/senda/issues">Issues</a>
+          <a href="https://github.com/this-senda/senda/blob/main/LICENSE">License (MIT)</a>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span>MIT licensed · © 2026 Senda</span>
+        <span>Built with Wails (Go) + SolidJS · CodeMirror 6 · Goja</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Mobile nav
+    (function () {
+      var toggle = document.querySelector('.nav-toggle');
+      var links = document.querySelector('.nav-links');
+      if (toggle && links) {
+        toggle.addEventListener('click', function () {
+          var open = links.classList.toggle('open');
+          toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+        links.addEventListener('click', function (e) {
+          if (e.target.tagName === 'A') {
+            links.classList.remove('open');
+            toggle.setAttribute('aria-expanded', 'false');
+          }
+        });
+      }
+    })();
+
+    // Install tabs
+    (function () {
+      var tabs = document.querySelectorAll('.tab');
+      var panels = document.querySelectorAll('.panel');
+      tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          var name = tab.getAttribute('data-tab');
+          tabs.forEach(function (t) { t.setAttribute('aria-selected', t === tab ? 'true' : 'false'); });
+          panels.forEach(function (p) {
+            p.setAttribute('data-active', p.getAttribute('data-panel') === name ? 'true' : 'false');
+          });
+        });
+      });
+    })();
+
+    // Copy buttons
+    (function () {
+      document.querySelectorAll('.copy').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var el = document.getElementById(btn.getAttribute('data-copy'));
+          if (!el) return;
+          var text = el.textContent;
+          var done = function () {
+            btn.classList.add('copied');
+            setTimeout(function () { btn.classList.remove('copied'); }, 1400);
+          };
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(done).catch(function(){});
+          }
+        });
+      });
+    })();
+
+    // Label download button by OS (progressive enhancement)
+    (function () {
+      var btn = document.getElementById('download-btn');
+      if (!btn) return;
+      var p = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || '';
+      var os = /mac/i.test(p) ? 'macOS' : /win/i.test(p) ? 'Windows' : /linux/i.test(p) ? 'Linux' : '';
+      if (os) {
+        var label = btn.childNodes[btn.childNodes.length - 1];
+        if (label && label.nodeType === 3) label.textContent = ' Download for ' + os;
+      }
+    })();
+
+    // Reveal on scroll
+    (function () {
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var items = document.querySelectorAll('.reveal');
+      if (reduce || !('IntersectionObserver' in window)) {
+        items.forEach(function (el) { el.classList.add('in'); });
+        return;
+      }
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) { entry.target.classList.add('in'); io.unobserve(entry.target); }
+        });
+      }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+      items.forEach(function (el) { io.observe(el); });
+    })();
+  </script>
+</body>
+</html>

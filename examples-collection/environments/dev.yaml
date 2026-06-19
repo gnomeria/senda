@@ -1,0 +1,5 @@
+name: dev
+vars:
+    - key: baseUrl
+      value: https://jsonplaceholder.typicode.com
+      enabled: true

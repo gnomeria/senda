@@ -1,0 +1,7 @@
+name: get-booking
+method: GET
+url: https://try.microcks.io/rest/Train+Travel+API/1.0.0/bookings/{bookingId}
+body:
+    type: none
+auth:
+    type: inherit

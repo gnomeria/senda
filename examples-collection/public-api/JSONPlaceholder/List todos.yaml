@@ -1,0 +1,11 @@
+name: List todos
+method: GET
+url: https://jsonplaceholder.typicode.com/todos
+params:
+    - key: _limit
+      value: "5"
+      enabled: true
+body:
+    type: none
+auth:
+    type: inherit

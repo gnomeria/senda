@@ -1,0 +1,14 @@
+name: Echo headers
+method: GET
+url: https://postman-echo.com/headers
+headers:
+    - key: X-Senda-Example
+      value: "true"
+      enabled: true
+    - key: X-Trace-Id
+      value: senda-123
+      enabled: true
+body:
+    type: none
+auth:
+    type: inherit

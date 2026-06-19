@@ -1,0 +1,25 @@
+id: git-config-exposure
+
+info:
+  name: Exposed .git Repository
+  severity: high
+  description: The .git directory is publicly readable; the full source history can be reconstructed.
+  remediation: Deny access to the .git directory at the web server.
+  tags: exposure,git,owasp
+  classification:
+    cwe-id: CWE-538
+  metadata:
+    owasp: "API8:2023 Security Misconfiguration"
+
+http:
+  - method: GET
+    path:
+      - "{{RootURL}}/.git/config"
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: word
+        words:
+          - "[core]"

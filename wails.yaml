@@ -1,0 +1,11 @@
+name: senda
+outputfilename: senda-desktop
+frontend:install: bun install
+frontend:build: bun run build
+frontend:dev:watcher: bun run dev
+frontend:dev:serverUrl: auto
+author:
+  name: gnomeria
+info:
+  productName: Senda
+  comments: Fast, git-native API client

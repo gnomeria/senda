@@ -1,0 +1,37 @@
+id: missing-security-headers
+
+info:
+  name: Missing Security Headers
+  severity: info
+  description: The response is missing one or more recommended security headers (Strict-Transport-Security, X-Content-Type-Options, X-Frame-Options or Content-Security-Policy).
+  remediation: Set the missing headers on all responses, e.g. via middleware or the reverse proxy.
+  tags: misconfig,headers,owasp
+  classification:
+    cwe-id: CWE-693
+  metadata:
+    owasp: "API8:2023 Security Misconfiguration"
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+    matchers-condition: or
+    matchers:
+      - type: word
+        part: header
+        case-insensitive: true
+        negative: true
+        words:
+          - "Strict-Transport-Security"
+      - type: word
+        part: header
+        case-insensitive: true
+        negative: true
+        words:
+          - "X-Content-Type-Options"
+      - type: word
+        part: header
+        case-insensitive: true
+        negative: true
+        words:
+          - "Content-Security-Policy"

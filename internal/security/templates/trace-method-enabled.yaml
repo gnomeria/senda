@@ -1,0 +1,25 @@
+id: trace-method-enabled
+
+info:
+  name: HTTP TRACE Method Enabled
+  severity: low
+  description: The server echoes TRACE requests, which can aid cross-site tracing attacks.
+  remediation: Disable the TRACE method on the server or proxy.
+  tags: misconfig,owasp
+  classification:
+    cwe-id: CWE-16
+  metadata:
+    owasp: "API8:2023 Security Misconfiguration"
+
+http:
+  - method: TRACE
+    path:
+      - "{{RootURL}}/"
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: word
+        words:
+          - "TRACE /"

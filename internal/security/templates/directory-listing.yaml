@@ -1,0 +1,27 @@
+id: directory-listing
+
+info:
+  name: Directory Listing Enabled
+  severity: low
+  description: The web server lists directory contents, exposing file names and structure.
+  remediation: Disable autoindex/directory browsing.
+  tags: misconfig,exposure
+  classification:
+    cwe-id: CWE-548
+  metadata:
+    owasp: "API8:2023 Security Misconfiguration"
+
+http:
+  - method: GET
+    path:
+      - "{{RootURL}}/"
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: word
+        condition: or
+        words:
+          - "Index of /"
+          - "<title>Index of"

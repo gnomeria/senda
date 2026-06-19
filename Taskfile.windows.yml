@@ -1,0 +1,52 @@
+version: "3"
+
+# Windows build tasks. Included as the `windows` namespace by the root Taskfile.
+# `wails3 build` invokes windows:build. Wails v3 on Windows uses the WebView2
+# runtime via pure-Go bindings, so CGO is not required — this cross-compiles
+# cleanly from any host as well as building natively.
+
+vars:
+  PROD_TAGS: production
+  VERSION: '{{.VERSION | default "dev"}}'
+  # -H windowsgui hides the console window for the GUI app.
+  LDFLAGS: -X senda/internal/buildinfo.Version={{.VERSION}} -H windowsgui
+  # -s drops the symbol table, -w drops DWARF debug info.
+  STRIP: -s -w
+
+tasks:
+  build:
+    desc: Production build, stripped — frontend + native binary into bin/
+    cmds:
+      - task: _build
+        vars: { LDFLAGS: "{{.STRIP}} {{.LDFLAGS}}" }
+
+  build:debug:
+    desc: Production build with debug symbols (unstripped) into bin/
+    cmds:
+      - task: _build
+        vars: { LDFLAGS: "{{.LDFLAGS}}" }
+
+  _build:
+    internal: true
+    deps:
+      - ":generate:bindings"
+      - ":build:frontend"
+    env:
+      CGO_ENABLED: 0
+      GOOS: windows
+    cmds:
+      - mkdir -p {{.BIN_DIR}}
+      - go build -tags {{.PROD_TAGS}} -ldflags="{{.LDFLAGS}}" -o {{.BIN_DIR}}/{{.APP_NAME}}.exe .
+
+  run:
+    desc: Debug build and run
+    deps: [":build:frontend"]
+    env:
+      CGO_ENABLED: 0
+    cmds:
+      - go build -o {{.BIN_DIR}}/{{.APP_NAME}}.exe .
+      - "{{.BIN_DIR}}/{{.APP_NAME}}.exe"
+
+  package:
+    desc: Build then bundle (alias for build for now)
+    deps: [build]

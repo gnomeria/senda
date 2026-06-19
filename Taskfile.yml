@@ -1,0 +1,119 @@
+version: "3"
+
+# Wails v3 build pipeline for Senda (alpha2.104).
+# Linux webview selection is by build tag:
+#   default (no tag) -> GTK4 + webkitgtk-6.0  (what we want; fixes jank)
+#   -tags gtk3       -> GTK3 + webkit2gtk-4.1 (legacy opt-out)
+# So BUILD_TAGS stays empty; `production` is added only for prod builds.
+# `wails3 build` runs the OS-namespaced task (linux:build); `wails3 dev` runs dev.
+
+vars:
+  APP_NAME: senda-desktop
+  BIN_DIR: bin
+  BUILD_TAGS: ""
+  # Release version, injected into the binary via -ldflags. Overridable from the
+  # environment (CI sets it from the git tag): `VERSION=1.2.3 wails3 build`.
+  VERSION: '{{.VERSION | default "dev"}}'
+  # DEBUG=1 keeps symbols/DWARF in the pure-Go binaries (tui/cli); empty strips.
+  DEBUG: '{{.DEBUG | default ""}}'
+
+includes:
+  linux:
+    taskfile: ./Taskfile.linux.yml
+    vars:
+      APP_NAME: "{{.APP_NAME}}"
+      BIN_DIR: "{{.BIN_DIR}}"
+      BUILD_TAGS: "{{.BUILD_TAGS}}"
+      VERSION: "{{.VERSION}}"
+  darwin:
+    taskfile: ./Taskfile.darwin.yml
+    vars:
+      APP_NAME: "{{.APP_NAME}}"
+      BIN_DIR: "{{.BIN_DIR}}"
+      BUILD_TAGS: "{{.BUILD_TAGS}}"
+      VERSION: "{{.VERSION}}"
+  windows:
+    taskfile: ./Taskfile.windows.yml
+    vars:
+      APP_NAME: "{{.APP_NAME}}"
+      BIN_DIR: "{{.BIN_DIR}}"
+      BUILD_TAGS: "{{.BUILD_TAGS}}"
+      VERSION: "{{.VERSION}}"
+
+tasks:
+  install:
+    desc: Install frontend dependencies
+    dir: frontend
+    cmds:
+      - bun install
+
+  generate:bindings:
+    desc: Regenerate v3 TypeScript bindings from Go services
+    cmds:
+      # TERM=dumb stops wails3's sponsor-footer renderer from probing the tty
+      # (OSC 11 background + CPR cursor query). It never drains the replies, so
+      # they would otherwise leak onto the shell prompt as stray "rgb:.../1R".
+      # NO_COLOR/-nocolour do NOT suppress the probe — only a dumb terminal does.
+      # Scoped here so the outer `wails3 build` banner keeps its colour.
+      - TERM=dumb wails3 generate bindings -clean -ts
+
+  gen:examples:large:
+    desc: Regenerate the large example collection tree (gitignored) and its committed, reproducible examples-collection/large.senda.zip
+    cmds:
+      - go run ./scripts/genexamples
+
+  build:frontend:
+    desc: Build the SolidJS frontend into frontend/dist
+    deps: [install, generate:bindings]
+    dir: frontend
+    cmds:
+      - bun run build
+
+  dev:
+    desc: "Live reload: use `wails3 dev` (reads build/config.yml → vite HMR + Go auto-restart). This bare task only runs the Go shell."
+    deps: [generate:bindings]
+    cmds:
+      - go run .
+
+  build:tui:
+    desc: Build the terminal UI (senda-tui) into bin/, stripped. Pure Go — no frontend/webview. DEBUG=1 keeps symbols.
+    cmds:
+      - mkdir -p {{.BIN_DIR}}
+      - go build -ldflags="{{if ne .DEBUG "1"}}-s -w {{end}}-X senda/internal/buildinfo.Version={{.VERSION}}" -o {{.BIN_DIR}}/senda-tui ./cmd/senda-tui
+
+  build:cli:
+    desc: Build the headless runner (senda-cli) into bin/, stripped. Pure Go — no frontend/webview. DEBUG=1 keeps symbols.
+    cmds:
+      - mkdir -p {{.BIN_DIR}}
+      - go build -ldflags="{{if ne .DEBUG "1"}}-s -w {{end}}-X senda/internal/buildinfo.Version={{.VERSION}}" -o {{.BIN_DIR}}/senda-cli ./cmd/senda-cli
+
+  tui:
+    desc: Build and run the terminal UI against a collection (CLI_ARGS passed through)
+    deps: [build:tui]
+    cmds:
+      - "{{.BIN_DIR}}/senda-tui {{.CLI_ARGS}}"
+
+  shots:
+    desc: "Regenerate documentation screenshots + GIF (Playwright drives `vite --mode test`; copies into docs/screenshots/). SENDA_CHROME=path uses a custom Chrome where Playwright's browser download is blocked."
+    deps: [install]
+    dir: frontend
+    cmds:
+      - bun run shots
+      - cp tests/visual/__screenshots__/*.png tests/visual/__screenshots__/*.gif ../docs/screenshots/
+
+  shots:tui:
+    desc: "Regenerate the senda-tui terminal screenshots + walkthrough GIF into docs/screenshots/tui/ (pure Go; renders real tuiModel output via internal/termimg — no PTY/ffmpeg). Needs DejaVu Sans Mono + FreeMono (apt: fonts-dejavu-core fonts-freefont-ttf, or set SENDA_TUI_FONT*). SENDA_TUI_GIF=0 skips the GIF."
+    cmds:
+      - mkdir -p docs/screenshots/tui
+      - SENDA_TUI_SHOTS=1 SENDA_TUI_SHOT_DIR="$PWD/docs/screenshots/tui" go test ./cmd/senda-tui -run TestTUIShots -count=1 -v
+
+  shots:cli:
+    desc: "Regenerate the senda-cli screenshot + walkthrough GIF into docs/screenshots/cli/ (pure Go; runs the real send pipeline against a local in-process server and renders the actual CLI output via internal/termimg — no network). Same font requirements as shots:tui. SENDA_CLI_GIF=0 skips the GIF."
+    cmds:
+      - mkdir -p docs/screenshots/cli
+      - SENDA_CLI_SHOTS=1 SENDA_CLI_SHOT_DIR="$PWD/docs/screenshots/cli" go test ./cmd/senda-cli -run TestCLIShot -count=1 -v
+
+  clean:
+    desc: Remove build artifacts
+    cmds:
+      - rm -rf {{.BIN_DIR}} frontend/dist

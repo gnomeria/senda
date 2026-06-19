@@ -1,0 +1,46 @@
+version: "3"
+
+# Linux build tasks. Included as the `linux` namespace by the root Taskfile.
+# `wails3 build` invokes linux:build.
+# Default (no build tags) selects GTK4 + webkitgtk-6.0 in alpha2.104.
+# Add `gtk3` to PROD_TAGS only to fall back to the legacy GTK3/webkit-4.1 stack.
+
+vars:
+  PROD_TAGS: production
+  VERSION: '{{.VERSION | default "dev"}}'
+  LDFLAGS: -X senda/internal/buildinfo.Version={{.VERSION}}
+  # -s drops the symbol table, -w drops DWARF debug info: ~32 MB -> ~24 MB.
+  STRIP: -s -w
+
+tasks:
+  build:
+    desc: Production build, stripped (~24 MB) — frontend + native binary into bin/
+    cmds:
+      - task: _build
+        vars: { LDFLAGS: "{{.STRIP}} {{.LDFLAGS}}" }
+
+  build:debug:
+    desc: Production build with debug symbols (unstripped, ~32 MB) into bin/
+    cmds:
+      - task: _build
+        vars: { LDFLAGS: "{{.LDFLAGS}}" }
+
+  _build:
+    internal: true
+    deps:
+      - ":generate:bindings"
+      - ":build:frontend"
+    cmds:
+      - mkdir -p {{.BIN_DIR}}
+      - go build -tags {{.PROD_TAGS}} -ldflags="{{.LDFLAGS}}" -o {{.BIN_DIR}}/{{.APP_NAME}} .
+
+  run:
+    desc: Debug build and run
+    deps: [":build:frontend"]
+    cmds:
+      - go build -o {{.BIN_DIR}}/{{.APP_NAME}} .
+      - "{{.BIN_DIR}}/{{.APP_NAME}}"
+
+  package:
+    desc: Build then bundle (alias for build for now)
+    deps: [build]

@@ -1,0 +1,29 @@
+name: get-trips
+method: GET
+url: https://try.microcks.io/rest/Train+Travel+API/1.0.0/trips
+params:
+    - key: page
+      value: ""
+      enabled: false
+    - key: limit
+      value: ""
+      enabled: false
+    - key: origin
+      value: ""
+      enabled: false
+    - key: destination
+      value: ""
+      enabled: false
+    - key: date
+      value: ""
+      enabled: false
+    - key: bicycles
+      value: ""
+      enabled: false
+    - key: dogs
+      value: ""
+      enabled: false
+body:
+    type: none
+auth:
+    type: inherit

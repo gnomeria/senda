@@ -1,0 +1,14 @@
+name: oauth-token
+# Token endpoint. Exchanges the (unchecked) authorization code or refresh token
+# for an opaque access token. No signature, no code validation — fine for tests
+# where the API under test trusts this mock as its identity provider.
+method: POST
+path: /token
+responses:
+  - status: 200
+    body:
+      access_token: "mock_at_{{uuid}}"
+      token_type: Bearer
+      expires_in: 3600
+      refresh_token: "mock_rt_{{uuid}}"
+      scope: "openid profile email"

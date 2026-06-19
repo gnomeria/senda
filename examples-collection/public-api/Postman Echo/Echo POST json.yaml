@@ -1,0 +1,16 @@
+name: Echo POST json
+method: POST
+url: https://postman-echo.com/post
+headers:
+    - key: Content-Type
+      value: application/json
+      enabled: true
+body:
+    type: json
+    raw: |-
+        {
+          "tool": "senda",
+          "nested": { "works": true }
+        }
+auth:
+    type: inherit

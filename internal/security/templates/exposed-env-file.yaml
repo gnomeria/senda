@@ -1,0 +1,32 @@
+id: exposed-env-file
+
+info:
+  name: Exposed .env File
+  severity: high
+  description: A dotenv file with application secrets is publicly readable.
+  remediation: Block access to dotfiles at the web server and rotate any leaked credentials.
+  tags: exposure,config,owasp
+  classification:
+    cwe-id: CWE-538
+  metadata:
+    owasp: "API8:2023 Security Misconfiguration"
+
+http:
+  - method: GET
+    path:
+      - "{{RootURL}}/.env"
+      - "{{RootURL}}/.env.production"
+    stop-at-first-match: true
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: word
+        condition: or
+        words:
+          - "APP_KEY="
+          - "DB_PASSWORD="
+          - "DATABASE_URL="
+          - "SECRET_KEY="
+          - "AWS_SECRET_ACCESS_KEY="

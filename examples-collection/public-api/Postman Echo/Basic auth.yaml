@@ -1,0 +1,9 @@
+name: Basic auth
+method: GET
+url: https://postman-echo.com/basic-auth
+body:
+    type: none
+auth:
+    type: basic
+    username: postman
+    password: password

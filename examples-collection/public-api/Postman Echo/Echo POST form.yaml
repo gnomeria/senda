@@ -1,0 +1,14 @@
+name: Echo POST form
+method: POST
+url: https://postman-echo.com/post
+body:
+    type: form
+    form:
+        - key: name
+          value: ada
+          enabled: true
+        - key: role
+          value: engineer
+          enabled: true
+auth:
+    type: inherit

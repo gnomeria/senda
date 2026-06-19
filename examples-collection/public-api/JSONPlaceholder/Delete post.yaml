@@ -1,0 +1,7 @@
+name: Delete post
+method: DELETE
+url: https://jsonplaceholder.typicode.com/posts/1
+body:
+    type: none
+auth:
+    type: inherit

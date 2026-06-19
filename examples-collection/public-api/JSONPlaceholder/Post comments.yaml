@@ -1,0 +1,11 @@
+name: Post comments
+method: GET
+url: https://jsonplaceholder.typicode.com/comments
+params:
+    - key: postId
+      value: "1"
+      enabled: true
+body:
+    type: none
+auth:
+    type: inherit

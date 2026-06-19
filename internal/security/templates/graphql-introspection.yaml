@@ -1,0 +1,30 @@
+id: graphql-introspection
+
+info:
+  name: GraphQL Introspection Enabled
+  severity: medium
+  description: The GraphQL endpoint answers introspection queries, exposing the full schema.
+  remediation: Disable introspection in production or restrict it to authenticated/internal clients.
+  tags: graphql,misconfig,owasp
+  classification:
+    cwe-id: CWE-200
+  metadata:
+    owasp: "API8:2023 Security Misconfiguration"
+
+http:
+  - method: POST
+    path:
+      - "{{RootURL}}/graphql"
+      - "{{RootURL}}/api/graphql"
+    stop-at-first-match: true
+    headers:
+      Content-Type: application/json
+    body: '{"query":"{__schema{queryType{name}}}"}'
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: word
+        words:
+          - "queryType"

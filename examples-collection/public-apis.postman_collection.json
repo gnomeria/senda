@@ -1,0 +1,294 @@
+{
+  "info": {
+    "name": "Public APIs",
+    "description": "Senda example collection: real, free, no-key public APIs for end-to-end testing. Import via Import > Postman.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "JSONPlaceholder",
+      "item": [
+        {
+          "name": "List posts",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "https://jsonplaceholder.typicode.com/posts?_limit=10",
+              "query": [{ "key": "_limit", "value": "10" }]
+            }
+          }
+        },
+        {
+          "name": "Get post",
+          "request": {
+            "method": "GET",
+            "url": "https://jsonplaceholder.typicode.com/posts/1"
+          }
+        },
+        {
+          "name": "Post comments",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "https://jsonplaceholder.typicode.com/comments?postId=1",
+              "query": [{ "key": "postId", "value": "1" }]
+            }
+          }
+        },
+        {
+          "name": "Create post",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"hello from senda\",\n  \"body\": \"created via example collection\",\n  \"userId\": 1\n}"
+            },
+            "url": "https://jsonplaceholder.typicode.com/posts"
+          }
+        },
+        {
+          "name": "Update post",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"title\": \"replaced title\",\n  \"body\": \"replaced body\",\n  \"userId\": 1\n}"
+            },
+            "url": "https://jsonplaceholder.typicode.com/posts/1"
+          }
+        },
+        {
+          "name": "Patch post",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"patched title\"\n}"
+            },
+            "url": "https://jsonplaceholder.typicode.com/posts/1"
+          }
+        },
+        {
+          "name": "Delete post",
+          "request": {
+            "method": "DELETE",
+            "url": "https://jsonplaceholder.typicode.com/posts/1"
+          }
+        },
+        {
+          "name": "List todos",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "https://jsonplaceholder.typicode.com/todos?_limit=5",
+              "query": [{ "key": "_limit", "value": "5" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Postman Echo",
+      "item": [
+        {
+          "name": "Echo GET",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "https://postman-echo.com/get?source=senda&kind=example",
+              "query": [
+                { "key": "source", "value": "senda" },
+                { "key": "kind", "value": "example" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Echo POST json",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tool\": \"senda\",\n  \"nested\": { \"works\": true }\n}"
+            },
+            "url": "https://postman-echo.com/post"
+          }
+        },
+        {
+          "name": "Echo POST form",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "name", "value": "ada" },
+                { "key": "role", "value": "engineer" }
+              ]
+            },
+            "url": "https://postman-echo.com/post"
+          }
+        },
+        {
+          "name": "Echo headers",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Senda-Example", "value": "true" },
+              { "key": "X-Trace-Id", "value": "senda-123" }
+            ],
+            "url": "https://postman-echo.com/headers"
+          }
+        },
+        {
+          "name": "Basic auth",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "basic",
+              "basic": [
+                { "key": "username", "value": "postman" },
+                { "key": "password", "value": "password" }
+              ]
+            },
+            "url": "https://postman-echo.com/basic-auth"
+          }
+        }
+      ]
+    },
+    {
+      "name": "GitHub",
+      "item": [
+        {
+          "name": "Get user octocat",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/vnd.github+json" }],
+            "url": "https://api.github.com/users/octocat"
+          }
+        },
+        {
+          "name": "List octocat repos",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/vnd.github+json" }],
+            "url": {
+              "raw": "https://api.github.com/users/octocat/repos?per_page=5",
+              "query": [{ "key": "per_page", "value": "5" }]
+            }
+          }
+        },
+        {
+          "name": "Get golang repo",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/vnd.github+json" }],
+            "url": "https://api.github.com/repos/golang/go"
+          }
+        },
+        {
+          "name": "Rate limit",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/vnd.github+json" }],
+            "url": "https://api.github.com/rate_limit"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Public data",
+      "item": [
+        {
+          "name": "Random UUID",
+          "request": "https://httpbin.org/uuid"
+        },
+        {
+          "name": "Time now",
+          "request": {
+            "method": "GET",
+            "url": "https://postman-echo.com/time/now"
+          }
+        },
+        {
+          "name": "My IP",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "https://api64.ipify.org?format=json",
+              "query": [{ "key": "format", "value": "json" }]
+            }
+          }
+        },
+        {
+          "name": "Country Finland",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "https://restcountries.com/v3.1/name/finland?fields=name,capital,population",
+              "query": [{ "key": "fields", "value": "name,capital,population" }]
+            }
+          }
+        },
+        {
+          "name": "USD exchange rates",
+          "request": {
+            "method": "GET",
+            "url": "https://open.er-api.com/v6/latest/USD"
+          }
+        },
+        {
+          "name": "Helsinki weather",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "https://api.open-meteo.com/v1/forecast?latitude=60.17&longitude=24.94&current_weather=true",
+              "query": [
+                { "key": "latitude", "value": "60.17" },
+                { "key": "longitude", "value": "24.94" },
+                { "key": "current_weather", "value": "true" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "GraphQL",
+      "item": [
+        {
+          "name": "Country by code",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "query Country($code: ID!) {\n  country(code: $code) {\n    name\n    capital\n    currency\n    emoji\n  }\n}",
+                "variables": "{\n  \"code\": \"FI\"\n}"
+              }
+            },
+            "url": "https://countries.trevorblades.com/"
+          }
+        },
+        {
+          "name": "List continents",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "{\n  continents {\n    code\n    name\n  }\n}",
+                "variables": ""
+              }
+            },
+            "url": "https://countries.trevorblades.com/"
+          }
+        }
+      ]
+    }
+  ]
+}

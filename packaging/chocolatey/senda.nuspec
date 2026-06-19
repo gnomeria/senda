@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>senda</id>
+    <version>0.0.0</version>
+    <packageSourceUrl>https://github.com/gnomeria/senda/tree/main/packaging/chocolatey</packageSourceUrl>
+    <owners>gnomeria</owners>
+    <title>Senda</title>
+    <authors>gnomeria</authors>
+    <projectUrl>https://github.com/gnomeria/senda</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/gnomeria/senda/main/docs/logo/senda-mark-256.png</iconUrl>
+    <copyright>gnomeria</copyright>
+    <licenseUrl>https://github.com/gnomeria/senda/blob/main/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectSourceUrl>https://github.com/gnomeria/senda</projectSourceUrl>
+    <docsUrl>https://github.com/gnomeria/senda#readme</docsUrl>
+    <bugTrackerUrl>https://github.com/gnomeria/senda/issues</bugTrackerUrl>
+    <tags>senda api-client http rest graphql developer-tools cli git</tags>
+    <summary>A fast, lightweight, git-native API client for developers.</summary>
+    <description>
+Senda is a desktop API client — a spiritual cousin of Bruno and Postman — where
+every collection is a plain folder of YAML files. No cloud account, no
+proprietary sync, no binary blobs. Open a collection, send requests, and commit
+the diff.
+
+Built with Wails (Go) and SolidJS, it ships a tiny binary with a low memory
+footprint compared to Electron-based alternatives. This package installs both
+the desktop app (`senda`) and the headless CLI runner (`senda-cli`).
+    </description>
+    <releaseNotes>https://github.com/gnomeria/senda/releases</releaseNotes>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>

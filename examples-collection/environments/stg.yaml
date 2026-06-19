@@ -1,0 +1,5 @@
+name: stg
+vars:
+    - key: baseUrl
+      value: https://staging.jsonplaceholder.com
+      enabled: true

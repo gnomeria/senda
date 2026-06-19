@@ -1,0 +1,29 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Senda">
+  <title>Senda</title>
+  <defs>
+    <!-- Catppuccin Mocha: base -> crust -->
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1e1e2e"/>
+      <stop offset="1" stop-color="#11111b"/>
+    </linearGradient>
+    <!-- the path: blue (request) -> teal -> green (response) -->
+    <linearGradient id="path" x1="330" y1="150" x2="182" y2="362" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#89b4fa"/>
+      <stop offset="0.5" stop-color="#94e2d5"/>
+      <stop offset="1" stop-color="#a6e3a1"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="116" fill="url(#bg)"/>
+
+  <!-- senda: an S-curve trail linking the two endpoints -->
+  <path d="M330 150 C250 120 200 200 256 256 C312 312 262 392 182 362"
+        stroke="url(#path)" stroke-width="34" stroke-linecap="round" fill="none"/>
+
+  <!-- request endpoint (top) -->
+  <circle cx="330" cy="150" r="38" fill="#89b4fa"/>
+  <circle cx="330" cy="150" r="16" fill="#1e1e2e"/>
+  <!-- response endpoint (bottom) -->
+  <circle cx="182" cy="362" r="38" fill="#a6e3a1"/>
+  <circle cx="182" cy="362" r="16" fill="#1e1e2e"/>
+</svg>

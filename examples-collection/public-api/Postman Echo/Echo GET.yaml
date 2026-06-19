@@ -1,0 +1,14 @@
+name: Echo GET
+method: GET
+url: https://postman-echo.com/get
+params:
+    - key: source
+      value: senda
+      enabled: true
+    - key: kind
+      value: example
+      enabled: true
+body:
+    type: none
+auth:
+    type: inherit

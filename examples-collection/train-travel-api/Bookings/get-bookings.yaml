@@ -1,0 +1,14 @@
+name: get-bookings
+method: GET
+url: https://try.microcks.io/rest/Train+Travel+API/1.0.0/bookings
+params:
+    - key: page
+      value: ""
+      enabled: false
+    - key: limit
+      value: ""
+      enabled: false
+body:
+    type: none
+auth:
+    type: inherit

@@ -1,0 +1,11 @@
+name: My IP
+method: GET
+url: https://api64.ipify.org
+params:
+    - key: format
+      value: json
+      enabled: true
+body:
+    type: none
+auth:
+    type: inherit

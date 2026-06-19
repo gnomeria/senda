@@ -1,0 +1,22 @@
+id: server-version-disclosure
+
+info:
+  name: Server Version Disclosure
+  severity: info
+  description: The Server header reveals software and version, easing targeted exploitation.
+  remediation: Strip or genericize the Server header at the proxy.
+  tags: disclosure,headers
+  classification:
+    cwe-id: CWE-200
+  metadata:
+    owasp: "API8:2023 Security Misconfiguration"
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+    matchers:
+      - type: regex
+        part: header
+        regex:
+          - "(?i)server: [a-z-]+/[0-9]"

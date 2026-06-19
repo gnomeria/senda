@@ -1,0 +1,10 @@
+name: oauth-authorize
+# Authorization endpoint. Instead of a login/consent screen it immediately
+# redirects back to the app's redirect_uri with a fake authorization code,
+# echoing the state param so the client's CSRF check passes.
+method: GET
+path: /authorize
+responses:
+  - status: 302
+    headers:
+      Location: "{{query.redirect_uri}}?code=mockcode_{{uuid}}&state={{query.state}}"

@@ -1,0 +1,92 @@
+name: Screenshots
+
+# Regenerate the documentation screenshots + GIF walkthroughs and commit them
+# back. Two capture passes run in one job:
+#   • desktop — Playwright against `vite --mode test` (hand-written Wails binding
+#     stubs + a capture-time mock backend) → docs/screenshots/
+#   • terminal — the senda-tui generator renders the real tuiModel output to PNG
+#     and an animated GIF in pure Go via internal/termimg → docs/screenshots/tui/
+# Run manually after UI changes.
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Branch to capture and commit to
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    name: Capture screenshots
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: bun install --frozen-lockfile
+
+      # GitHub runners can reach Playwright's browser CDN, so let it manage the
+      # browser. (Locally, where that host may be blocked, set SENDA_CHROME to a
+      # Chrome-for-Testing build instead — see docs/screenshots/README.md.)
+      - name: Install Playwright Chromium
+        working-directory: frontend
+        run: bunx playwright install --with-deps chromium
+
+      - name: Capture screenshots + GIF
+        working-directory: frontend
+        run: bun run shots
+
+      - name: Copy into docs/screenshots
+        run: |
+          cp frontend/tests/visual/__screenshots__/*.png docs/screenshots/
+          cp frontend/tests/visual/__screenshots__/*.gif docs/screenshots/
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      # senda-tui rendering needs a monospace face with box-drawing coverage
+      # (DejaVu Sans Mono) plus a fallback for the glyphs it lacks (FreeMono).
+      - name: Install TUI capture fonts
+        run: sudo apt-get update && sudo apt-get install -y fonts-dejavu-core fonts-freefont-ttf
+
+      - name: Capture TUI screenshots + GIF
+        env:
+          SENDA_TUI_SHOTS: "1"
+          SENDA_TUI_SHOT_DIR: ${{ github.workspace }}/docs/screenshots/tui
+        run: go test ./cmd/senda-tui -run TestTUIShots -count=1 -v
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- docs/screenshots; then
+            echo "No screenshot changes."
+            exit 0
+          fi
+          git add docs/screenshots
+          git commit -m "docs: regenerate desktop + terminal screenshots and walkthrough GIFs"
+          git push
+
+      - name: Upload TUI screenshots as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots-tui
+          path: docs/screenshots/tui/
+
+      - name: Upload as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: frontend/tests/visual/__screenshots__/

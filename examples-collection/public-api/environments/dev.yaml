@@ -1,0 +1,5 @@
+name: dev
+vars:
+    - key: HOST
+      value: https://www.google.com
+      enabled: true

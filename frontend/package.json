@@ -1,0 +1,42 @@
+{
+  "name": "senda-frontend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:mock": "vite --mode test",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "shots": "node tests/visual/shoot.mjs"
+  },
+  "dependencies": {
+    "@codemirror/lang-json": "^6.0.1",
+    "@codemirror/lint": "^6.9.7",
+    "@codemirror/state": "^6.4.1",
+    "@codemirror/view": "^6.26.3",
+    "@wailsio/runtime": "^3.0.0-alpha.79",
+    "cm6-graphql": "^0.2.1",
+    "codemirror": "^6.0.1",
+    "graphql": "^17.0.0",
+    "lucide-solid": "^1.18.0",
+    "solid-js": "^1.8.17"
+  },
+  "devDependencies": {
+    "@solidjs/testing-library": "^0.8.10",
+    "@testing-library/jest-dom": "^6.4.6",
+    "autoprefixer": "^10.5.0",
+    "gifenc": "^1.0.3",
+    "jsdom": "^24.1.0",
+    "playwright": "^1.60.0",
+    "pngjs": "^7.0.0",
+    "postcss": "^8.5.15",
+    "tailwindcss": "3",
+    "typescript": "^5.4.5",
+    "vite": "^8.0.16",
+    "vite-plugin-solid": "^2.11.12",
+    "vitest": "^4.1.8"
+  }
+}

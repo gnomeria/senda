@@ -1,0 +1,20 @@
+name: Country by code
+method: POST
+url: https://countries.trevorblades.com/
+body:
+    type: graphql
+    raw: |-
+        query Country($code: ID!) {
+          country(code: $code) {
+            name
+            capital
+            currency
+            emoji
+          }
+        }
+    variables: |-
+        {
+          "code": "FI"
+        }
+auth:
+    type: inherit

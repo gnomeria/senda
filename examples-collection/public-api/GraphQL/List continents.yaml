@@ -1,0 +1,14 @@
+name: List continents
+method: POST
+url: https://countries.trevorblades.com/
+body:
+    type: graphql
+    raw: |-
+        {
+          continents {
+            code
+            name
+          }
+        }
+auth:
+    type: inherit

@@ -1,0 +1,7 @@
+name: Random UUID
+method: GET
+url: https://httpbin.org/uuid
+body:
+    type: none
+auth:
+    type: inherit

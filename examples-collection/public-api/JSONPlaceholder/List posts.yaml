@@ -1,0 +1,15 @@
+name: List posts
+method: GET
+url: https://jsonplaceholder.typicode.com/posts
+params:
+    - key: _limit
+      value: "10"
+      enabled: true
+headers:
+    - key: Accept
+      value: application/json
+      enabled: true
+body:
+    type: none
+auth:
+    type: inherit

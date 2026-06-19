@@ -1,0 +1,708 @@
+openapi: 3.1.0
+info:
+  title: Train Travel API
+  description: |
+    API for finding and booking train trips across Europe.
+  version: 1.2.1
+  contact:
+    name: Train Support
+    url: https://example.com/support
+    email: support@example.com
+  license:
+    name: Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+    identifier: CC-BY-NC-SA-4.0
+  x-feedbackLink:
+    label: Submit Feedback
+    url: https://github.com/bump-sh-examples/train-travel-api/issues/new
+
+servers:
+  - url: https://try.microcks.io/rest/Train+Travel+API/1.0.0
+    description: Mock Server
+    x-internal: false
+  - url: https://api.example.com
+    description: Production
+    x-internal: false
+
+x-speakeasy-retries:
+  strategy: backoff
+  backoff:
+    initialInterval: 500
+    maxInterval: 60000
+    maxElapsedTime: 3600000
+    exponent: 1.5
+  statusCodes:
+    - 5XX
+  retryConnectionErrors: true
+
+security:
+  - OAuth2:
+      - read
+
+x-topics:
+  - title: Getting started
+    content:
+      $ref: ./docs/getting-started.md
+
+tags:
+  - name: Stations
+    description: Find and filter train stations across Europe.
+  - name: Trips
+    description: Timetables and routes for train trips between stations.
+  - name: Bookings
+    description: Create and manage bookings for train trips.
+  - name: Payments
+    description: Pay for bookings using a card or bank account.
+
+paths:
+  /stations:
+    get:
+      summary: Get a list of train stations
+      description: Returns a paginated and searchable list of all train stations.
+      operationId: get-stations
+      tags:
+        - Stations
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/limit'
+        - name: coordinates
+          in: query
+          description: The latitude and longitude of the user's location.
+          required: false
+          schema:
+            type: string
+          example: 52.5200,13.4050
+        - name: search
+          in: query
+          description: A search term to filter the list of stations by name or address.
+          required: false
+          schema:
+            type: string
+            examples:
+              - Milano Centrale
+              - Paris
+        - name: country
+          in: query
+          description: Filter stations by country code
+          required: false
+          schema:
+            type: string
+            format: iso-country-code
+          example: DE
+      responses:
+        '200':
+          description: OK
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/Cache-Control'
+            RateLimit:
+              $ref: '#/components/headers/RateLimit'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Wrapper-Collection'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Station'
+                  - properties:
+                      links:
+                        allOf:
+                          - $ref: '#/components/schemas/Links-Self'
+                          - $ref: '#/components/schemas/Links-Pagination'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /trips:
+    get:
+      summary: Get available train trips
+      description: Returns a list of available train trips.
+      operationId: get-trips
+      tags:
+        - Trips
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/limit'
+        - name: origin
+          in: query
+          description: The ID of the origin station
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: efdbb9d1-02c2-4bc3-afb7-6788d8782b1e
+        - name: destination
+          in: query
+          description: The ID of the destination station
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: b2e783e1-c824-4d63-b37a-d8d698862f1d
+        - name: date
+          in: query
+          description: The date and time of the trip in ISO 8601 format.
+          required: true
+          schema:
+            type: string
+            format: date-time
+          example: '2024-02-01T09:00:00Z'
+        - name: bicycles
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: dogs
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: A list of available train trips
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Wrapper-Collection'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          allOf:
+                            - $ref: '#/components/schemas/Trip'
+                            - $ref: '#/components/schemas/Links-Origin'
+                            - $ref: '#/components/schemas/Links-Destination'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /bookings:
+    get:
+      operationId: get-bookings
+      summary: List existing bookings
+      description: Returns a list of all trip bookings by the authenticated user.
+      tags:
+        - Bookings
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: A list of bookings
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Wrapper-Collection'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Booking'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      operationId: create-booking
+      summary: Create a booking
+      description: A booking is a temporary hold on a trip.
+      tags:
+        - Bookings
+      security:
+        - OAuth2:
+            - write
+      requestBody:
+        description: Booking details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Booking'
+      responses:
+        '201':
+          description: Booking successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Booking'
+                  - properties:
+                      links:
+                        $ref: '#/components/schemas/Links-Self'
+              example:
+                id: efdbb9d1-02c2-4bc3-afb7-6788d8782b1e
+                trip_id: efdbb9d1-02c2-4bc3-afb7-6788d8782b1e
+                passenger_name: John Doe
+                has_bicycle: true
+                has_dog: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /bookings/{bookingId}:
+    parameters:
+      - name: bookingId
+        in: path
+        required: true
+        description: The ID of the booking to retrieve.
+        schema:
+          type: string
+          format: uuid
+        example: 1725ff48-ab45-4bb5-9d02-88745177dedb
+    get:
+      summary: Get a booking
+      description: Returns the details of a specific booking.
+      operationId: get-booking
+      tags:
+        - Bookings
+      responses:
+        '200':
+          description: The booking details
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Booking'
+                  - properties:
+                      links:
+                        $ref: '#/components/schemas/Links-Self'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      summary: Delete a booking
+      description: Deletes a booking, cancelling the hold on the trip.
+      operationId: delete-booking
+      security:
+        - OAuth2:
+            - write
+      tags:
+        - Bookings
+      responses:
+        '204':
+          description: Booking deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /bookings/{bookingId}/payment:
+    parameters:
+      - name: bookingId
+        in: path
+        required: true
+        description: The ID of the booking to pay for.
+        schema:
+          type: string
+          format: uuid
+        example: 1725ff48-ab45-4bb5-9d02-88745177dedb
+    post:
+      summary: Pay for a Booking
+      description: A payment is an attempt to pay for the booking.
+      operationId: create-booking-payment
+      tags:
+        - Payments
+      requestBody:
+        description: Payment details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingPayment'
+            examples:
+              Card:
+                summary: Card Payment
+                value:
+                  amount: 49.99
+                  currency: gbp
+                  source:
+                    object: card
+                    name: J. Doe
+                    number: '4242424242424242'
+                    cvc: '123'
+                    exp_month: 12
+                    exp_year: 2025
+                    address_line1: 123 Fake Street
+                    address_city: London
+                    address_country: gb
+                    address_post_code: N12 9XX
+              Bank:
+                summary: Bank Account Payment
+                value:
+                  amount: 100.5
+                  currency: gbp
+                  source:
+                    object: bank_account
+                    name: J. Doe
+                    number: '00012345'
+                    sort_code: '000123'
+                    account_type: individual
+                    bank_name: Starling Bank
+                    country: gb
+      responses:
+        '200':
+          description: Payment successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BookingPayment'
+                  - properties:
+                      links:
+                        $ref: '#/components/schemas/Links-Booking'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+webhooks:
+  newBooking:
+    post:
+      operationId: new-booking
+      summary: New Booking
+      description: Subscribe to new bookings being created.
+      tags:
+        - Bookings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/Booking'
+                - properties:
+                    links:
+                      allOf:
+                        - $ref: '#/components/schemas/Links-Self'
+                        - $ref: '#/components/schemas/Links-Pagination'
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the data was received successfully.
+
+components:
+  parameters:
+    page:
+      name: page
+      in: query
+      description: The page number to return
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      example: 1
+    limit:
+      name: limit
+      in: query
+      description: The number of items to return per page
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 10
+      example: 10
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      description: OAuth 2.0 authorization code following RFC8725 best practices.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://example.com/oauth/authorize
+          tokenUrl: https://example.com/oauth/token
+          scopes:
+            read: Read access
+            write: Write access
+  schemas:
+    Station:
+      description: A train station.
+      type: object
+      required:
+        - id
+        - name
+        - address
+        - country_code
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        address:
+          type: string
+        country_code:
+          type: string
+          format: iso-country-code
+        timezone:
+          type: string
+    Links-Self:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri
+    Links-Destination:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri
+    Links-Origin:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri
+    Links-Pagination:
+      type: object
+      properties:
+        next:
+          type: string
+          format: uri
+        prev:
+          type: string
+          format: uri
+    Problem:
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        detail:
+          type: string
+        instance:
+          type: string
+        status:
+          type: integer
+    Trip:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        origin:
+          type: string
+        destination:
+          type: string
+        departure_time:
+          type: string
+          format: date-time
+        arrival_time:
+          type: string
+          format: date-time
+        operator:
+          type: string
+        price:
+          type: number
+        bicycles_allowed:
+          type: boolean
+        dogs_allowed:
+          type: boolean
+    Booking:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        trip_id:
+          type: string
+          format: uuid
+        passenger_name:
+          type: string
+        has_bicycle:
+          type: boolean
+        has_dog:
+          type: boolean
+    Wrapper-Collection:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+        links:
+          type: object
+          readOnly: true
+    BookingPayment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        amount:
+          type: number
+          exclusiveMinimum: 0
+        currency:
+          type: string
+          enum:
+            - bam
+            - bgn
+            - chf
+            - eur
+            - gbp
+            - nok
+            - sek
+            - try
+        source:
+          unevaluatedProperties: false
+          oneOf:
+            - title: Card
+              type: object
+              properties:
+                object:
+                  type: string
+                  const: card
+                name:
+                  type: string
+                number:
+                  type: string
+                cvc:
+                  type: string
+                  minLength: 3
+                  maxLength: 4
+                  writeOnly: true
+                exp_month:
+                  type: integer
+                  format: int64
+                exp_year:
+                  type: integer
+                  format: int64
+                address_line1:
+                  type: string
+                  writeOnly: true
+                address_city:
+                  type: string
+                address_country:
+                  type: string
+                address_post_code:
+                  type: string
+              required:
+                - name
+                - number
+                - cvc
+                - exp_month
+                - exp_year
+                - address_country
+            - title: Bank Account
+              type: object
+              properties:
+                object:
+                  const: bank_account
+                  type: string
+                name:
+                  type: string
+                number:
+                  type: string
+                sort_code:
+                  type: string
+                account_type:
+                  enum:
+                    - individual
+                    - company
+                  type: string
+                bank_name:
+                  type: string
+                country:
+                  type: string
+              required:
+                - name
+                - number
+                - account_type
+                - bank_name
+                - country
+        status:
+          type: string
+          enum:
+            - pending
+            - succeeded
+            - failed
+          readOnly: true
+    Links-Booking:
+      type: object
+      properties:
+        booking:
+          type: string
+          format: uri
+  headers:
+    Cache-Control:
+      description: Cache-Control header.
+      schema:
+        type: string
+    RateLimit:
+      description: RateLimit header.
+      schema:
+        type: string
+    Retry-After:
+      description: Retry-After header.
+      schema:
+        type: string
+  responses:
+    BadRequest:
+      description: Bad Request
+      headers:
+        RateLimit:
+          $ref: '#/components/headers/RateLimit'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Conflict:
+      description: Conflict
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Forbidden:
+      description: Forbidden
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    InternalServerError:
+      description: Internal Server Error
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    NotFound:
+      description: Not Found
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    TooManyRequests:
+      description: Too Many Requests
+      headers:
+        Retry-After:
+          $ref: '#/components/headers/Retry-After'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'

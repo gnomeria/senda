@@ -1,0 +1,17 @@
+name: Create post
+method: POST
+url: https://jsonplaceholder.typicode.com/posts
+headers:
+    - key: Content-Type
+      value: application/json
+      enabled: true
+body:
+    type: json
+    raw: |-
+        {
+          "title": "hello from senda",
+          "body": "created via example collection",
+          "userId": 1
+        }
+auth:
+    type: inherit

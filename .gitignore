@@ -1,0 +1,44 @@
+# Build output
+/build/bin/
+
+# Go
+*.test
+*.out
+
+# Frontend
+/frontend/node_modules/
+/frontend/dist/
+/frontend/tests/visual/__screenshots__/
+
+# Wails generated bindings (regenerated from Go)
+/frontend/wailsjs/
+/frontend/bindings/
+
+# Playwright
+/test-results/
+
+# OS / editor
+.DS_Store
+*.swp
+
+bin/
+
+# Generated large example collection tree (regenerate with: task gen:examples:large).
+# Only the packed examples-collection/large.senda.zip is committed.
+/examples-collection/large/
+
+# scratch/temp files (Claude work area)
+tmp/
+.security/
+.senda/
+history.jsonl
+# Local Claude Code settings (never ship to the public repo)
+.claude/
+# Root-level built binaries (anchored so they don't match the cmd/senda-tui
+# and cmd/senda-cli source directories).
+/senda-tui
+/senda-cli
+build/
+
+# Local screenshot-capture browser cache (Chrome-for-Testing)
+/.cache/

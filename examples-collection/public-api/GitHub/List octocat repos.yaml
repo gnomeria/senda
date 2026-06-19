@@ -1,0 +1,15 @@
+name: List octocat repos
+method: GET
+url: https://api.github.com/users/octocat/repos
+params:
+    - key: per_page
+      value: "5"
+      enabled: true
+headers:
+    - key: Accept
+      value: application/vnd.github+json
+      enabled: true
+body:
+    type: none
+auth:
+    type: inherit

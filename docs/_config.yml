@@ -1,0 +1,32 @@
+title: Senda
+description: "A fast, lightweight, git-native API client for developers who live in terminals and version control."
+url: "https://this-senda.github.io"
+baseurl: "/senda"
+
+repository: this-senda/senda
+github_username: this-senda
+
+theme: minima
+minima:
+  skin: dark
+
+header_pages:
+  - roadmap.md
+  - theming.md
+
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+
+markdown: kramdown
+highlighter: rouge
+
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      image: /screenshots/04-request-response.png

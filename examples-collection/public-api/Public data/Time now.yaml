@@ -1,0 +1,7 @@
+name: Time now
+method: GET
+url: https://postman-echo.com/time/now
+body:
+    type: none
+auth:
+    type: inherit

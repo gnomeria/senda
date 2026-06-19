@@ -1,0 +1,25 @@
+VERIFICATION
+
+Verification is intended to assist the Chocolatey moderators and community in
+verifying that this package's contents are trustworthy.
+
+This package downloads the official Senda release archive from GitHub:
+
+  https://github.com/gnomeria/senda/releases
+
+The bundled binaries are produced by the project's GitHub Actions release
+workflow (.github/workflows/release.yml) directly from the tagged source.
+
+To verify the download:
+
+  1. Download the Windows archive for the matching version from the URL above:
+       senda_<version>_windows-amd64.zip
+  2. Obtain its SHA-256 checksum:
+       Get-FileHash senda_<version>_windows-amd64.zip -Algorithm SHA256
+  3. Compare it to:
+       - the $checksum value in tools\chocolateyinstall.ps1, and
+       - the entry in checksums.txt attached to the release.
+
+The software is licensed under the MIT License:
+
+  https://github.com/gnomeria/senda/blob/main/LICENSE

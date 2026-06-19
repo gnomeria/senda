@@ -1,0 +1,11 @@
+name: Get golang repo
+method: GET
+url: https://api.github.com/repos/golang/go
+headers:
+    - key: Accept
+      value: application/vnd.github+json
+      enabled: true
+body:
+    type: none
+auth:
+    type: inherit

@@ -1,0 +1,15 @@
+name: Patch post
+method: PATCH
+url: https://jsonplaceholder.typicode.com/posts/1
+headers:
+    - key: Content-Type
+      value: application/json
+      enabled: true
+body:
+    type: json
+    raw: |-
+        {
+          "title": "patched title"
+        }
+auth:
+    type: inherit

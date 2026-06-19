@@ -1,0 +1,11 @@
+name: Country Finland
+method: GET
+url: https://restcountries.com/v3.1/name/finland
+params:
+    - key: fields
+      value: name,capital,population
+      enabled: true
+body:
+    type: none
+auth:
+    type: inherit

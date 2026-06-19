@@ -1,0 +1,29 @@
+id: permissive-cors
+
+info:
+  name: Permissive CORS Policy
+  severity: medium
+  description: The endpoint allows cross-origin requests from any origin, or reflects an arbitrary attacker-supplied Origin header.
+  remediation: Restrict Access-Control-Allow-Origin to an explicit allowlist of trusted origins.
+  tags: cors,misconfig,owasp
+  reference:
+    - https://owasp.org/API-Security/editions/2023/en/0xa8-security-misconfiguration/
+  classification:
+    cwe-id: CWE-942
+  metadata:
+    owasp: "API8:2023 Security Misconfiguration"
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+    headers:
+      Origin: https://evil.senda-scan.invalid
+    matchers:
+      - type: word
+        part: header
+        case-insensitive: true
+        condition: or
+        words:
+          - "Access-Control-Allow-Origin: *"
+          - "Access-Control-Allow-Origin: https://evil.senda-scan.invalid"

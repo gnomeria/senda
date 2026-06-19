@@ -1,0 +1,17 @@
+name: Helsinki weather
+method: GET
+url: https://api.open-meteo.com/v1/forecast
+params:
+    - key: latitude
+      value: "60.17"
+      enabled: true
+    - key: longitude
+      value: "24.94"
+      enabled: true
+    - key: current_weather
+      value: "true"
+      enabled: true
+body:
+    type: none
+auth:
+    type: inherit

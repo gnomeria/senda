@@ -1,0 +1,15 @@
+name: oauth-userinfo
+# UserInfo endpoint (OIDC). Returns canned profile claims for the mock user.
+# Edit these to match whatever your app expects from Google/Facebook/etc.
+method: GET
+path: /userinfo
+responses:
+  - status: 200
+    body:
+      sub: "mock-user-123"
+      name: "Mock User"
+      given_name: "Mock"
+      family_name: "User"
+      email: "mock@example.com"
+      email_verified: true
+      picture: "https://example.com/avatar.png"

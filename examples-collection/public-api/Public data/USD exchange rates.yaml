@@ -1,0 +1,7 @@
+name: USD exchange rates
+method: GET
+url: https://open.er-api.com/v6/latest/USD
+body:
+    type: none
+auth:
+    type: inherit

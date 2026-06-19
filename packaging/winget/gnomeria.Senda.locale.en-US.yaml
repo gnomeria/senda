@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.6.0.schema.json
+PackageIdentifier: gnomeria.Senda
+PackageVersion: 0.0.0
+PackageLocale: en-US
+Publisher: gnomeria
+PublisherUrl: https://github.com/gnomeria
+PublisherSupportUrl: https://github.com/gnomeria/senda/issues
+PackageName: Senda
+PackageUrl: https://github.com/gnomeria/senda
+License: MIT
+LicenseUrl: https://github.com/gnomeria/senda/blob/main/LICENSE
+ShortDescription: A fast, lightweight, git-native API client for developers.
+Description: >-
+  Senda is a desktop API client where every collection is a plain folder of YAML
+  files. No cloud account, no proprietary sync, no binary blobs. Open a
+  collection, send requests, and commit the diff. Built with Wails (Go) and
+  SolidJS for a tiny binary and low memory footprint. This package installs both
+  the desktop app (senda) and the headless CLI runner (senda-cli).
+Moniker: senda
+Tags:
+  - api
+  - api-client
+  - http
+  - rest
+  - graphql
+  - developer-tools
+  - cli
+ManifestType: defaultLocale
+ManifestVersion: 1.6.0

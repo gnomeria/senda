@@ -1,0 +1,23 @@
+id: x-powered-by-disclosure
+
+info:
+  name: X-Powered-By Disclosure
+  severity: info
+  description: The X-Powered-By header reveals the backend technology stack.
+  remediation: Remove the X-Powered-By header.
+  tags: disclosure,headers
+  classification:
+    cwe-id: CWE-200
+  metadata:
+    owasp: "API8:2023 Security Misconfiguration"
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+    matchers:
+      - type: word
+        part: header
+        case-insensitive: true
+        words:
+          - "X-Powered-By:"

@@ -1,0 +1,29 @@
+id: spring-actuator-exposure
+
+info:
+  name: Exposed Spring Boot Actuator
+  severity: high
+  description: Spring Boot actuator endpoints are publicly reachable and can leak environment variables, config and heap dumps.
+  remediation: Require authentication for actuator endpoints or bind them to an internal management port.
+  tags: exposure,spring,debug,owasp
+  classification:
+    cwe-id: CWE-489
+  metadata:
+    owasp: "API8:2023 Security Misconfiguration"
+
+http:
+  - method: GET
+    path:
+      - "{{RootURL}}/actuator"
+      - "{{RootURL}}/actuator/env"
+    stop-at-first-match: true
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: word
+        condition: or
+        words:
+          - "\"_links\""
+          - "propertySources"

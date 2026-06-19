@@ -1,0 +1,47 @@
+version: "3"
+
+# macOS build tasks. Included as the `darwin` namespace by the root Taskfile.
+# `wails3 build` invokes darwin:build. No GTK build tags here — the webview is
+# always WKWebView on macOS.
+
+vars:
+  PROD_TAGS: production
+  VERSION: '{{.VERSION | default "dev"}}'
+  # -extldflags=-Wl,-w silences ld64's cosmetic "built for newer macOS version"
+  # warnings on the Go runtime objects (toolchain SDK > link floor).
+  LDFLAGS: -X senda/internal/buildinfo.Version={{.VERSION}} -extldflags=-Wl,-w
+  # -s drops the symbol table, -w drops DWARF debug info (Go linker flags).
+  STRIP: -s -w
+
+tasks:
+  build:
+    desc: Production build, stripped — frontend + native binary into bin/
+    cmds:
+      - task: _build
+        vars: { LDFLAGS: "{{.STRIP}} {{.LDFLAGS}}" }
+
+  build:debug:
+    desc: Production build with debug symbols (unstripped) into bin/
+    cmds:
+      - task: _build
+        vars: { LDFLAGS: "{{.LDFLAGS}}" }
+
+  _build:
+    internal: true
+    deps:
+      - ":generate:bindings"
+      - ":build:frontend"
+    cmds:
+      - mkdir -p {{.BIN_DIR}}
+      - go build -tags {{.PROD_TAGS}} -ldflags="{{.LDFLAGS}}" -o {{.BIN_DIR}}/{{.APP_NAME}} .
+
+  run:
+    desc: Debug build and run
+    deps: [":build:frontend"]
+    cmds:
+      - go build -ldflags="-extldflags=-Wl,-w" -o {{.BIN_DIR}}/{{.APP_NAME}} .
+      - "{{.BIN_DIR}}/{{.APP_NAME}}"
+
+  package:
+    desc: Build then bundle (alias for build for now)
+    deps: [build]

@@ -1,0 +1,25 @@
+id: pprof-debug-exposure
+
+info:
+  name: Exposed Go pprof Debug Endpoint
+  severity: high
+  description: The net/http/pprof profiler is publicly reachable; it leaks heap, goroutine and CPU profiles and enables DoS via profiling load.
+  remediation: Serve pprof only on a localhost/admin listener.
+  tags: exposure,debug,owasp
+  classification:
+    cwe-id: CWE-489
+  metadata:
+    owasp: "API8:2023 Security Misconfiguration"
+
+http:
+  - method: GET
+    path:
+      - "{{RootURL}}/debug/pprof/"
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: word
+        words:
+          - "Types of profiles available"

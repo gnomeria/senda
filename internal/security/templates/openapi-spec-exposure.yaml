@@ -1,0 +1,32 @@
+id: openapi-spec-exposure
+
+info:
+  name: Publicly Exposed API Specification
+  severity: info
+  description: An OpenAPI/Swagger specification is publicly reachable, mapping the full API surface for attackers.
+  remediation: Restrict spec and Swagger UI endpoints to internal networks or authenticated users if not intentionally public.
+  tags: exposure,docs,owasp
+  classification:
+    cwe-id: CWE-200
+  metadata:
+    owasp: "API9:2023 Improper Inventory Management"
+
+http:
+  - method: GET
+    path:
+      - "{{RootURL}}/swagger.json"
+      - "{{RootURL}}/openapi.json"
+      - "{{RootURL}}/v2/api-docs"
+      - "{{RootURL}}/v3/api-docs"
+    stop-at-first-match: true
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: word
+        case-insensitive: true
+        condition: or
+        words:
+          - "\"swagger\""
+          - "\"openapi\""
