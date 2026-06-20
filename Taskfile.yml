@@ -75,23 +75,17 @@ tasks:
     cmds:
       - go run .
 
-  build:tui:
-    desc: Build the terminal UI (senda-tui) into bin/, stripped. Pure Go — no frontend/webview. DEBUG=1 keeps symbols.
+  build:senda:
+    desc: Build the unified senda binary (TUI + headless run/mock/docs + gui launcher) into bin/, stripped. Pure Go — no frontend/webview. DEBUG=1 keeps symbols.
     cmds:
       - mkdir -p {{.BIN_DIR}}
-      - go build -ldflags="{{if ne .DEBUG "1"}}-s -w {{end}}-X senda/internal/buildinfo.Version={{.VERSION}}" -o {{.BIN_DIR}}/senda-tui ./cmd/senda-tui
-
-  build:cli:
-    desc: Build the headless runner (senda-cli) into bin/, stripped. Pure Go — no frontend/webview. DEBUG=1 keeps symbols.
-    cmds:
-      - mkdir -p {{.BIN_DIR}}
-      - go build -ldflags="{{if ne .DEBUG "1"}}-s -w {{end}}-X senda/internal/buildinfo.Version={{.VERSION}}" -o {{.BIN_DIR}}/senda-cli ./cmd/senda-cli
+      - go build -ldflags="{{if ne .DEBUG "1"}}-s -w {{end}}-X senda/internal/buildinfo.Version={{.VERSION}}" -o {{.BIN_DIR}}/senda ./cmd/senda
 
   tui:
     desc: Build and run the terminal UI against a collection (CLI_ARGS passed through)
-    deps: [build:tui]
+    deps: [build:senda]
     cmds:
-      - "{{.BIN_DIR}}/senda-tui {{.CLI_ARGS}}"
+      - "{{.BIN_DIR}}/senda tui {{.CLI_ARGS}}"
 
   shots:
     desc: "Regenerate documentation screenshots + GIF (Playwright drives `vite --mode test`; copies into docs/screenshots/). SENDA_CHROME=path uses a custom Chrome where Playwright's browser download is blocked."
@@ -102,16 +96,16 @@ tasks:
       - cp tests/visual/__screenshots__/*.png tests/visual/__screenshots__/*.gif ../docs/screenshots/
 
   shots:tui:
-    desc: "Regenerate the senda-tui terminal screenshots + walkthrough GIF into docs/screenshots/tui/ (pure Go; renders real tuiModel output via internal/termimg — no PTY/ffmpeg). Needs DejaVu Sans Mono + FreeMono (apt: fonts-dejavu-core fonts-freefont-ttf, or set SENDA_TUI_FONT*). SENDA_TUI_GIF=0 skips the GIF."
+    desc: "Regenerate the senda terminal-UI screenshots + walkthrough GIF into docs/screenshots/tui/ (pure Go; renders real tuiModel output via internal/termimg — no PTY/ffmpeg). Needs DejaVu Sans Mono + FreeMono (apt: fonts-dejavu-core fonts-freefont-ttf, or set SENDA_TUI_FONT*). SENDA_TUI_GIF=0 skips the GIF."
     cmds:
       - mkdir -p docs/screenshots/tui
-      - SENDA_TUI_SHOTS=1 SENDA_TUI_SHOT_DIR="$PWD/docs/screenshots/tui" go test ./cmd/senda-tui -run TestTUIShots -count=1 -v
+      - SENDA_TUI_SHOTS=1 SENDA_TUI_SHOT_DIR="$PWD/docs/screenshots/tui" go test ./internal/tui -run TestTUIShots -count=1 -v
 
   shots:cli:
-    desc: "Regenerate the senda-cli screenshot + walkthrough GIF into docs/screenshots/cli/ (pure Go; runs the real send pipeline against a local in-process server and renders the actual CLI output via internal/termimg — no network). Same font requirements as shots:tui. SENDA_CLI_GIF=0 skips the GIF."
+    desc: "Regenerate the `senda run` screenshot + walkthrough GIF into docs/screenshots/cli/ (pure Go; runs the real send pipeline against a local in-process server and renders the actual output via internal/termimg — no network). Same font requirements as shots:tui. SENDA_CLI_GIF=0 skips the GIF."
     cmds:
       - mkdir -p docs/screenshots/cli
-      - SENDA_CLI_SHOTS=1 SENDA_CLI_SHOT_DIR="$PWD/docs/screenshots/cli" go test ./cmd/senda-cli -run TestCLIShot -count=1 -v
+      - SENDA_CLI_SHOTS=1 SENDA_CLI_SHOT_DIR="$PWD/docs/screenshots/cli" go test ./cmd/senda -run TestCLIShot -count=1 -v
 
   clean:
     desc: Remove build artifacts

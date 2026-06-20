@@ -67,12 +67,12 @@ func runMock(args []string) {
 // runMockInit scaffolds a bundled mock preset (e.g. "oauth") into a
 // collection's .senda/mocks/ directory.
 //
-//	senda-cli mock init oauth [-collection ./my-api]
+//	senda mock init oauth [-collection ./my-api]
 func runMockInit(args []string) {
 	fs := flag.NewFlagSet("mock init", flag.ExitOnError)
 	collPath := fs.String("collection", ".", "collection root directory")
 	fs.Usage = func() {
-		fmt.Fprintf(os.Stderr, "usage: senda-cli mock init <preset> [-collection dir]\n\npresets: %s\n", strings.Join(mockserver.Presets(), ", "))
+		fmt.Fprintf(os.Stderr, "usage: senda mock init <preset> [-collection dir]\n\npresets: %s\n", strings.Join(mockserver.Presets(), ", "))
 	}
 	if len(args) == 0 {
 		fs.Usage()
@@ -97,5 +97,5 @@ func runMockInit(args []string) {
 	for _, f := range skipped {
 		fmt.Printf("  skipped  .senda/mocks/%s (already exists)\n", f)
 	}
-	fmt.Printf("\npreset %q ready. Start it with:\n  senda-cli mock -collection %s\n", preset, *collPath)
+	fmt.Printf("\npreset %q ready. Start it with:\n  senda mock -collection %s\n", preset, *collPath)
 }

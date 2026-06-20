@@ -1,7 +1,7 @@
 # Terminal UI screenshots
 
-Screenshots and the walkthrough GIF of `senda-tui` referenced in the root
-README live here. They are generated automatically — don't edit them by hand.
+Screenshots and the walkthrough GIF of the `senda` terminal UI referenced in the
+root README live here. They are generated automatically — don't edit them by hand.
 
 ## Regenerating
 
@@ -21,7 +21,7 @@ or directly:
 
 ```bash
 SENDA_TUI_SHOTS=1 SENDA_TUI_SHOT_DIR="$PWD/docs/screenshots/tui" \
-  go test ./cmd/senda-tui -run TestTUIShots -count=1
+  go test ./internal/tui -run TestTUIShots -count=1
 ```
 
 ### Fonts

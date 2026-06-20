@@ -1,4 +1,4 @@
-package main
+package tui
 
 import (
 	"os"
@@ -9,12 +9,12 @@ import (
 	"senda/internal/termimg"
 )
 
-// TestTUIShots regenerates the senda-tui documentation: a set of PNG stills plus
+// TestTUIShots regenerates the senda terminal-UI documentation: a set of PNG stills plus
 // an animated walkthrough.gif, rendered headlessly from real tuiModel.render()
 // output via internal/termimg (no PTY, no ffmpeg). Gated by SENDA_TUI_SHOTS so it
 // never runs in normal `go test ./...`; drive it with `task shots:tui`.
 //
-// Output dir: $SENDA_TUI_SHOT_DIR (default cmd/senda-tui/tmp/shots). The
+// Output dir: $SENDA_TUI_SHOT_DIR (default internal/tui/tmp/shots). The
 // Taskfile copies the results into docs/screenshots/tui/.
 func TestTUIShots(t *testing.T) {
 	if os.Getenv("SENDA_TUI_SHOTS") == "" {

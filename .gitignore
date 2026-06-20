@@ -34,10 +34,9 @@ tmp/
 history.jsonl
 # Local Claude Code settings (never ship to the public repo)
 .claude/
-# Root-level built binaries (anchored so they don't match the cmd/senda-tui
-# and cmd/senda-cli source directories).
-/senda-tui
-/senda-cli
+# Root-level built binary (anchored so it doesn't match the cmd/senda source
+# directory). `go build .` and `go build ./cmd/senda` both emit ./senda.
+/senda
 build/
 
 # Local screenshot-capture browser cache (Chrome-for-Testing)

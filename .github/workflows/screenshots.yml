@@ -4,7 +4,7 @@ name: Screenshots
 # back. Two capture passes run in one job:
 #   • desktop — Playwright against `vite --mode test` (hand-written Wails binding
 #     stubs + a capture-time mock backend) → docs/screenshots/
-#   • terminal — the senda-tui generator renders the real tuiModel output to PNG
+#   • terminal — the senda terminal-UI generator renders the real tuiModel output to PNG
 #     and an animated GIF in pure Go via internal/termimg → docs/screenshots/tui/
 # Run manually after UI changes.
 on:
@@ -56,7 +56,7 @@ jobs:
           go-version-file: go.mod
           cache: true
 
-      # senda-tui rendering needs a monospace face with box-drawing coverage
+      # senda terminal-UI rendering needs a monospace face with box-drawing coverage
       # (DejaVu Sans Mono) plus a fallback for the glyphs it lacks (FreeMono).
       - name: Install TUI capture fonts
         run: sudo apt-get update && sudo apt-get install -y fonts-dejavu-core fonts-freefont-ttf
@@ -65,7 +65,7 @@ jobs:
         env:
           SENDA_TUI_SHOTS: "1"
           SENDA_TUI_SHOT_DIR: ${{ github.workspace }}/docs/screenshots/tui
-        run: go test ./cmd/senda-tui -run TestTUIShots -count=1 -v
+        run: go test ./internal/tui -run TestTUIShots -count=1 -v
 
       - name: Commit if changed
         run: |

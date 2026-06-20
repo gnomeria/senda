@@ -17,8 +17,9 @@ release workflow builds and publishes:
 | `senda_<version>_windows-amd64.zip`      | Windows x86-64    |
 | `checksums.txt`                          | SHA-256 sums      |
 
-Each archive contains two binaries at its root: `senda` (the desktop app) and
-`senda-cli` (the headless runner).
+Each archive contains two binaries at its root: `senda` (the pure-Go everyday
+binary — terminal UI plus `senda run`/`mock`/`docs` and the `senda gui`
+launcher) and `senda-desktop` (the GUI app).
 
 ## End-user install paths
 

@@ -7,7 +7,7 @@ Senda — fast, git-native API client. Collections = plain folders of YAML. Buil
 - **Frontend** (`frontend/`, SolidJS + TS + CodeMirror 6): pure view + local UI state. No HTTP, no disk. Call Go via Wails bindings.
 - **Backend** (Go): all network/disk/CPU work. Rule: **touch network, disk, or CPU-heavy → Go.** Frontend only render.
 - **Disk = source of truth.** App stateless editor over `*.yaml` collection files.
-- Three entrypoints: desktop (`main.go` + `app*.go`), TUI (`cmd/senda-tui`), CLI (`cmd/senda-cli`). TUI/CLI pure Go — no frontend/webview.
+- Two binaries: desktop GUI (`main.go` + `app*.go`, Wails/CGO/webview → `senda-desktop`) and the unified pure-Go `senda` (`cmd/senda` dispatch → TUI default + `run`/`mock`/`docs` subcommands + `gui` launcher that execs `senda-desktop`). TUI lives in `internal/tui`. The pure-Go binary has no frontend/webview, runs anywhere (servers/CI/containers).
 
 ### Go packages (`internal/`)
 
@@ -20,9 +20,8 @@ Wails v3 via Taskfile (`wails3 build` / `wails3 dev` dispatch to OS-namespaced t
 ```
 wails3 dev              # desktop, live reload
 wails3 build            # prod desktop binary (stripped, ~24 MB) into bin/
-task build:tui          # bin/senda-tui (pure Go)
-task build:cli          # bin/senda-cli (pure Go)
-task tui -- <path>      # build + run TUI against a collection
+task build:senda        # bin/senda (pure Go: TUI + run/mock/docs + gui launcher)
+task tui -- <path>      # build + run the TUI against a collection
 task generate:bindings  # regen TS bindings from Go services
 ```
 

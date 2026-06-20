@@ -174,7 +174,7 @@ Built with **Wails (Go)** for the native shell and **SolidJS** for the UI, it sh
 - **Rule routes** (match method + path, pick a response variant) and **stateful resource routes** (in-memory CRUD that survives across requests until reset)
 - `{{...}}` response templating (path params, fake data, `uuid`, `now`), named **scenarios** you can switch live, proxy passthrough, CORS, and hot-reload on file edits
 - **Generate mocks from an OpenAPI spec**, scaffold bundled presets, or **save a real response as a mock** to turn a round-trip into a fixture
-- Also runnable headless: `senda-cli mock`
+- Also runnable headless: `senda mock`
 
 ### Security scanning
 
@@ -192,7 +192,7 @@ Built with **Wails (Go)** for the native shell and **SolidJS** for the UI, it sh
 
 - **Import from**: curl commands, Postman v2.0+ collections, OpenAPI 3.0 / 3.1 specs
 - **Generate code**: curl, fetch, httpie, Python `requests`, Go `net/http`
-- **Generate API docs**: render a collection (or one folder) to Markdown or self-contained HTML via `senda-cli --docs`
+- **Generate API docs**: render a collection (or one folder) to Markdown or self-contained HTML via `senda docs`
 
 ### Developer experience
 
@@ -203,8 +203,9 @@ Built with **Wails (Go)** for the native shell and **SolidJS** for the UI, it sh
 - **File watch**: auto-refreshes when a YAML file is edited externally (`git pull`, `$EDITOR`)
 - **Drag-and-drop**: reorder requests and folders in the tree
 - **Cookie jar**: persistent session cookies across sends and runs
-- **CLI runner**: `senda-cli` — same send pipeline as the desktop app, scriptable in CI
-- **Terminal UI**: `senda-tui` — interactive 3-pane TUI (tree | request | response) over the same pipeline, for working entirely in the terminal
+- **One binary, three modes**: `senda` is pure Go (no webview) — bare `senda` opens the terminal UI, `senda run` is the headless CI runner, `senda gui` launches the desktop app. All share the same send pipeline.
+- **Terminal UI**: `senda` (or `senda tui`) — interactive 3-pane TUI (tree | request | response) for working entirely in the terminal
+- **CLI runner**: `senda run` — same send pipeline as the desktop app, scriptable in CI
 
 ---
 
@@ -262,8 +263,9 @@ postScript: |
 
 Prebuilt binaries for Linux, macOS, and Windows are attached to every
 [release](https://github.com/this-senda/senda/releases). Each archive bundles the
-desktop app (`senda-desktop`) and the headless CLI runner (`senda-cli`). Pick
-whichever install path you prefer.
+everyday `senda` binary (pure Go — terminal UI plus `senda run`/`mock`/`docs` and
+the `senda gui` launcher) and the `senda-desktop` GUI app. Pick whichever install
+path you prefer.
 
 ### Shell installer (Linux / macOS)
 
@@ -273,10 +275,10 @@ curl -fsSL https://raw.githubusercontent.com/this-senda/senda/main/scripts/insta
 
 Installs into `~/.local/bin` (or `/usr/local/bin` when writable). Override with
 `SENDA_INSTALL_DIR=/path`, pin a version with `SENDA_VERSION=0.1.0`, or skip the
-CLI with `SENDA_NO_CLI=1`. The script verifies the release SHA-256 checksum
-before installing.
+GUI on headless hosts with `SENDA_NO_DESKTOP=1`. The script verifies the release
+SHA-256 checksum before installing.
 
-> **Linux:** the desktop window needs a WebKitGTK runtime — `libwebkitgtk-6.0-4`
+> **Linux:** the `senda-desktop` window needs a WebKitGTK runtime — `libwebkitgtk-6.0-4`
 > (Debian/Ubuntu), `webkitgtk-6.0` (Arch), or `webkitgtk6.0` (Fedora). The
 > installer prints the exact command if it's missing.
 
@@ -316,8 +318,8 @@ just the missing signature, not a problem with the app.
   ```sh
   xattr -dr com.apple.quarantine /Applications/Senda.app
   ```
-  The shell installer and Homebrew instead drop the CLI-style `senda-desktop` /
-  `senda-cli` binaries (and the installer clears their quarantine flag for you).
+  The shell installer and Homebrew instead drop the CLI-style `senda` /
+  `senda-desktop` binaries (and the installer clears their quarantine flag for you).
 - **Windows** — SmartScreen may show *"Windows protected your PC"*. Click
   **More info → Run anyway**.
 
@@ -448,11 +450,11 @@ senda/
 │   ├── wsclient/ · sseclient/    # WebSocket + Server-Sent Events clients
 │   ├── history/                  # JSONL-based request history
 │   ├── aigen/                    # Optional LLM-assisted assertion suggestions
+│   ├── tui/                      # Terminal UI (Bubble Tea; same pipeline, no webview)
 │   ├── termimg/                  # Pure-Go TUI screenshot/GIF renderer (docs)
 │   └── buildinfo/                # Version string injected at build time
 │
-├── cmd/senda-cli/                 # CLI runner + `mock` subcommand + `--docs` (no GUI)
-├── cmd/senda-tui/                 # Terminal UI (Bubble Tea; same pipeline, no webview)
+├── cmd/senda/                     # Unified pure-Go binary: TUI default + run/mock/docs + gui launcher (no webview)
 ├── app.go                        # Wails-bound API surface (IPC)
 ├── app_features.go               # Import, codegen, runner, load, mock, history, WS/SSE
 ├── app_security.go               # Security-scan bindings
@@ -475,31 +477,31 @@ Open it via **File → Open Collection** and set the `token` environment variabl
 
 ---
 
-## Headless CLI (`senda-cli`)
+## Headless runner (`senda run`)
 
-The CLI drives the same send pipeline as the desktop app — scripts, variables,
+`senda run` drives the same send pipeline as the desktop app — scripts, variables,
 secrets, assertions, and the cookie jar all behave identically — so it slots
 straight into CI. It exits `0` when every request passes and `1` on any failure.
 
-![senda-cli walkthrough — type the command, then watch each request's result stream in with status, timing, and assertion tally, ending in a pass/fail summary](docs/screenshots/cli/walkthrough.gif)
+![senda run walkthrough — type the command, then watch each request's result stream in with status, timing, and assertion tally, ending in a pass/fail summary](docs/screenshots/cli/walkthrough.gif)
 
 ```bash
-task build:cli                                   # builds bin/senda-cli
+task build:senda                              # builds bin/senda
 
 # Run a collection (or one folder) against an environment
-bin/senda-cli -collection ./my-api -env dev
-bin/senda-cli -collection ./my-api -folder auth -env dev -q   # -q = summary only
+bin/senda run -collection ./my-api -env dev
+bin/senda run -collection ./my-api -folder auth -env dev -q   # -q = summary only
 
 # Data-driven run: repeat every request once per row of a CSV/JSON file
-bin/senda-cli -collection ./my-api -data users.csv
+bin/senda run -collection ./my-api -data users.csv
 
 # Generate API documentation (Markdown or self-contained HTML)
-bin/senda-cli -collection ./my-api --docs -o docs/api.md
-bin/senda-cli -collection ./my-api --docs --docs-format html -o docs/api.html
+bin/senda docs -collection ./my-api -o docs/api.md
+bin/senda docs -collection ./my-api --docs-format html -o docs/api.html
 
 # Run the mock server headlessly (see docs/mock-server.md)
-bin/senda-cli mock -collection ./my-api -addr :8787 -scenario error
-bin/senda-cli mock init oauth -collection ./my-api   # scaffold a preset
+bin/senda mock -collection ./my-api -addr :8787 -scenario error
+bin/senda mock init oauth -collection ./my-api   # scaffold a preset
 ```
 
 > **Regenerate the CLI screenshot + GIF:** `task shots:cli` runs the real
@@ -509,16 +511,17 @@ bin/senda-cli mock init oauth -collection ./my-api   # scaffold a preset
 
 ---
 
-## Terminal UI (`senda-tui`)
+## Terminal UI (`senda`)
 
-A keyboard-driven TUI built on [Bubble Tea](https://github.com/charmbracelet/bubbletea) that drives the exact same send pipeline as the desktop app — no webview, pure Go. Useful over SSH, in tmux, or when you'd rather not leave the terminal.
+A keyboard-driven TUI built on [Bubble Tea](https://github.com/charmbracelet/bubbletea) that drives the exact same send pipeline as the desktop app — no webview, pure Go. It's what bare `senda` opens (when attached to a terminal). Useful over SSH, in tmux, or when you'd rather not leave the terminal.
 
-![senda-tui walkthrough — open a request, send it, inspect the response and tests, drive the command palette, switch environments, flip layouts](docs/screenshots/tui/walkthrough.gif)
+![senda terminal UI walkthrough — open a request, send it, inspect the response and tests, drive the command palette, switch environments, flip layouts](docs/screenshots/tui/walkthrough.gif)
 
 ```bash
-task build:tui                       # builds bin/senda-tui
-bin/senda-tui -collection ./my-api   # open a collection
-bin/senda-tui -collection ./my-api -env dev
+task build:senda                          # builds bin/senda
+bin/senda                                 # open the current directory
+bin/senda -collection ./my-api            # open a collection (shorthand for `senda tui`)
+bin/senda tui -collection ./my-api -env dev
 
 # or build + run in one step
 task tui -- -collection ./my-api -env dev

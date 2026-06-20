@@ -21,6 +21,18 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- **Consolidated the two pure-Go binaries (`senda-cli` + `senda-tui`) into a
+  single `senda` binary** with subcommand dispatch: bare `senda` opens the
+  terminal UI (falls back to help when there's no TTY, or opens `senda ./dir`
+  code-style), `senda run` is the headless CI runner (formerly `senda-cli`),
+  `senda mock` / `senda docs` expose the mock server and doc generator, and
+  `senda gui` launches the desktop app (`senda-desktop`) detached, `code`-style —
+  it execs the GUI binary found beside `senda` or on `$PATH`. The desktop GUI
+  stays a separate `senda-desktop` artifact because it links GTK4/WebKit via CGO
+  and can't run headless. Release archives now ship `senda` + `senda-desktop`;
+  installers gained `SENDA_NO_DESKTOP=1` / `-NoDesktop` to skip the GUI on
+  headless hosts. The TUI moved from `cmd/senda-tui` to `internal/tui`; the
+  runner moved from `cmd/senda-cli` to `cmd/senda`.
 - Collection layout: all non-request files — `senda.meta.yaml`, `senda.secret.yaml`,
   `environments/`, `mocks/` and security templates (formerly `.security/`) — now
   live under a single `.senda/` directory, leaving the collection root with only

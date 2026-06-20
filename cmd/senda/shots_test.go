@@ -19,18 +19,18 @@ import (
 	"senda/internal/termimg"
 )
 
-// TestCLIShot regenerates the senda-cli documentation screenshot
+// TestCLIShot regenerates the senda run documentation screenshot
 // (docs/screenshots/cli/01-run.png). It runs the *real* send pipeline against a
-// local in-process server — no network — and renders senda-cli's actual stdout
+// local in-process server — no network — and renders senda run's actual stdout
 // (via the shared formatResult) to a PNG with internal/termimg, the same
 // headless renderer behind the TUI screenshots. Gated by SENDA_CLI_SHOTS so it
 // never runs in a normal `go test ./...`; drive it with `task shots:cli`.
 //
-// Output dir: $SENDA_CLI_SHOT_DIR (default cmd/senda-cli/tmp/shots). The
+// Output dir: $SENDA_CLI_SHOT_DIR (default cmd/senda/tmp/shots). The
 // Taskfile copies the result into docs/screenshots/cli/.
 func TestCLIShot(t *testing.T) {
 	if os.Getenv("SENDA_CLI_SHOTS") == "" {
-		t.Skip("set SENDA_CLI_SHOTS=1 to regenerate the senda-cli screenshot")
+		t.Skip("set SENDA_CLI_SHOTS=1 to regenerate the senda run screenshot")
 	}
 
 	// A tiny stand-in API. Each handler sleeps a few ms so the rendered
@@ -126,7 +126,7 @@ func TestCLIShot(t *testing.T) {
 	}
 	summary := fmt.Sprintf("%d/%d passed", passed, len(results))
 
-	const cmd = "senda-cli -collection ./my-api -env dev"
+	const cmd = "senda run -collection ./my-api -env dev"
 	const prompt = "\x1b[32;1m$\x1b[0m " // bold green shell prompt
 	still := prompt + cmd + "\n\n" + strings.Join(lines, "\n") + "\n\n" + summary + "\n"
 
@@ -160,7 +160,7 @@ func TestCLIShot(t *testing.T) {
 	t.Logf("wrote 01-run.png:\n%s", still)
 
 	// walkthrough.gif — type the command, then watch the results stream in line
-	// by line (senda-cli prints each as its request lands), then the summary.
+	// by line (senda run prints each as its request lands), then the summary.
 	// termimg.GIF pads shorter frames to the tallest, so the output grows
 	// downward from a fixed top-left origin. Skip with SENDA_CLI_GIF=0.
 	if os.Getenv("SENDA_CLI_GIF") == "0" {
@@ -194,7 +194,7 @@ func TestCLIShot(t *testing.T) {
 
 	add(assemble("", 0, false), 45) // empty prompt
 	typed := ""
-	for _, tok := range []string{"senda-cli", " -collection", " ./my-api", " -env", " dev"} {
+	for _, tok := range []string{"senda", " run", " -collection", " ./my-api", " -env", " dev"} {
 		typed += tok
 		add(assemble(typed, 0, false), 16) // typing the command
 	}
