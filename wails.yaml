@@ -5,7 +5,7 @@ frontend:build: bun run build
 frontend:dev:watcher: bun run dev
 frontend:dev:serverUrl: auto
 author:
-  name: gnomeria
+  name: this-senda
 info:
   productName: Senda
   comments: Fast, git-native API client

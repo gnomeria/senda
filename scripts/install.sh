@@ -2,7 +2,7 @@
 # Senda installer for Linux and macOS.
 #
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/gnomeria/senda/main/scripts/install.sh | sh
+#   curl -fsSL https://raw.githubusercontent.com/this-senda/senda/main/scripts/install.sh | sh
 #
 # Environment overrides:
 #   SENDA_VERSION       Install a specific version (e.g. 0.1.0). Default: latest release.
@@ -14,7 +14,7 @@
 
 set -eu
 
-REPO="gnomeria/senda"
+REPO="this-senda/senda"
 BIN_NAME="senda-desktop"
 CLI_NAME="senda-cli"
 

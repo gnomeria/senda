@@ -6,7 +6,7 @@ permalink: /benchmarks/
 
 # Benchmarks: Senda Footprint vs Bruno & Insomnia
 
-> Authored: 2026-06-16 · Owner: @gnomeria
+> Authored: 2026-06-16 · Owner: @this-senda
 >
 > Goal: quantify Senda's resource footprint against Electron-based API clients
 > (Bruno, Insomnia) to back the "no Chromium, fraction of the RAM" positioning.

@@ -10,12 +10,16 @@ Senda is currently in early release. Security fixes are applied to the latest ve
 
 ## Reporting a Vulnerability
 
-Report vulnerabilities by emailing **gnomeria+senda@outlook.co.id** with:
+Report vulnerabilities privately through GitHub's
+[private vulnerability reporting](https://github.com/this-senda/senda/security/advisories/new).
+Please include:
 
 - A description of the vulnerability
 - Steps to reproduce
 - Potential impact
 - Any suggested fix (optional)
+
+Please do not open public issues for security reports.
 
 ## Scope
 
