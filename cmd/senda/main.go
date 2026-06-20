@@ -13,6 +13,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -54,6 +55,16 @@ func main() {
 		usage(os.Stdout)
 	case "-v", "--version", "version":
 		bi := buildinfo.Get()
+		// `--json` emits the build metadata as a single JSON object so CI can
+		// parse the version/commit/date without scraping the human line.
+		if len(args) > 1 && (args[1] == "--json" || args[1] == "-json") {
+			b, err := json.Marshal(bi)
+			if err != nil {
+				fatal(err)
+			}
+			fmt.Println(string(b))
+			return
+		}
 		line := "senda " + bi.Version
 		if bi.Commit != "" {
 			line += " (" + bi.Commit + ")"
@@ -99,7 +110,7 @@ Usage:
   senda gui [args...]         launch the desktop app (senda-desktop)
 
   senda -h                    this help
-  senda -v                    version
+  senda -v [--json]           version (--json for machine-readable output)
 `)
 }
 
