@@ -32,7 +32,7 @@ scenario. The server **hot-reloads** when you edit files.
 1. In an open collection, create a `mocks/` directory.
 2. Add `*.yaml` files (rule and/or resource routes).
 3. Start it: in the desktop app open the **Mock Server** panel and click **Start**,
-   or from the terminal run `senda-cli mock -collection . -addr :8787`.
+   or from the terminal run `senda mock -collection . -addr :8787`.
 4. Send requests to the bound address — e.g. `curl http://localhost:8787/users/42`.
 
 ```
@@ -147,7 +147,7 @@ State lives in RAM: it seeds on start and **resets on restart** or via the panel
 
 Tag responses with `scenario:` to model alternate worlds (happy path, server
 error, rate-limited…). Switch the active scenario from the panel's **Scenario**
-dropdown, the `_config.yaml` `scenario:` field, or `senda-cli mock -scenario error`.
+dropdown, the `_config.yaml` `scenario:` field, or `senda mock -scenario error`.
 
 ```yaml
 method: GET
@@ -181,7 +181,7 @@ scenario: success           # default active scenario
 ## CLI
 
 ```bash
-senda-cli mock -collection ./my-api -addr :8787 -scenario error
+senda mock -collection ./my-api -addr :8787 -scenario error
 ```
 
 Pure Go, no webview. Loads `./my-api/mocks/`, serves, logs each request to stdout,
@@ -228,7 +228,7 @@ new resources are seeded and removed ones dropped.
 | Server / handler / hot-reload | `internal/mockserver/mockserver.go` |
 | App bindings | `app_features.go` |
 | UI panel | `frontend/src/components/MockServerPanel.tsx` |
-| CLI | `cmd/senda-cli/mock.go` |
+| CLI | `cmd/senda/mock.go` |
 
 Everything — matching, templating, fake data, the resource store — runs in Go.
 The faker is hand-rolled (no dependency) to keep the binary small.

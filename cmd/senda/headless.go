@@ -1,11 +1,9 @@
-// senda-cli runs a collection (or one folder of it) headlessly — same pipeline
-// as the desktop app: scripts, variables, secrets, asserts, cookie jar.
+// runHeadless runs a collection (or one folder of it) headlessly — same
+// pipeline as the desktop app: scripts, variables, secrets, asserts, cookie jar.
 // Exit code 0 = every request passed; 1 = at least one failure.
 //
-//	senda-cli -collection ./my-api [-folder auth] [-env dev] [-q]
-//	senda-cli -collection ./my-api --docs [-o docs/api.md] [--docs-format html|md]
-//	senda-cli mock [-collection ./my-api] [-addr :8787] [-scenario error]
-//	senda-cli mock init oauth [-collection ./my-api]   # scaffold a mock preset
+//	senda run -collection ./my-api [-folder auth] [-env dev] [-q]
+//	senda run -collection ./my-api --docs [-o docs/api.md] [--docs-format html|md]
 package main
 
 import (
@@ -22,21 +20,17 @@ import (
 	"senda/internal/store"
 )
 
-func main() {
-	if len(os.Args) > 1 && os.Args[1] == "mock" {
-		runMock(os.Args[2:])
-		return
-	}
-
-	collPath := flag.String("collection", ".", "collection root directory")
-	folder := flag.String("folder", "", "subfolder to run (default: whole collection)")
-	env := flag.String("env", "", "environment name")
-	quiet := flag.Bool("q", false, "only print the summary line")
-	docs := flag.Bool("docs", false, "generate API documentation instead of running requests")
-	docsOutput := flag.String("o", "", "output file for docs (default: stdout)")
-	docsFormat := flag.String("docs-format", "md", "docs output format: md or html")
-	dataFile := flag.String("data", "", "CSV or JSON data file for data-driven runs")
-	flag.Parse()
+func runHeadless(args []string) {
+	fs := flag.NewFlagSet("run", flag.ExitOnError)
+	collPath := fs.String("collection", ".", "collection root directory")
+	folder := fs.String("folder", "", "subfolder to run (default: whole collection)")
+	env := fs.String("env", "", "environment name")
+	quiet := fs.Bool("q", false, "only print the summary line")
+	docs := fs.Bool("docs", false, "generate API documentation instead of running requests")
+	docsOutput := fs.String("o", "", "output file for docs (default: stdout)")
+	docsFormat := fs.String("docs-format", "md", "docs output format: md or html")
+	dataFile := fs.String("data", "", "CSV or JSON data file for data-driven runs")
+	_ = fs.Parse(args)
 
 	root, err := filepath.Abs(*collPath)
 	if err != nil {
@@ -119,7 +113,7 @@ func main() {
 	}
 }
 
-// formatResult renders one run result as the single status line senda-cli
+// formatResult renders one run result as the single status line `senda run`
 // prints per request: a pass/fail mark, the name, method, status, duration, and
 // (when present) the assertion tally and any error.
 func formatResult(r model.RunResult) string {
@@ -168,6 +162,6 @@ func runDocs(collPath, subFolder, outFile, format string) {
 }
 
 func fatal(err error) {
-	fmt.Fprintln(os.Stderr, "senda-cli:", err)
+	fmt.Fprintln(os.Stderr, "senda:", err)
 	os.Exit(1)
 }

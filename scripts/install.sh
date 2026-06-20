@@ -7,16 +7,17 @@
 # Environment overrides:
 #   SENDA_VERSION       Install a specific version (e.g. 0.1.0). Default: latest release.
 #   SENDA_INSTALL_DIR   Where to put the binaries. Default: ~/.local/bin (or /usr/local/bin if writable).
-#   SENDA_NO_CLI=1      Skip installing the senda-cli binary.
+#   SENDA_NO_DESKTOP=1  Skip installing the senda-desktop GUI (headless hosts).
 #
 # This script downloads a prebuilt release archive, verifies its SHA-256
-# checksum, and installs both `senda-desktop` (desktop app) and `senda-cli`.
+# checksum, and installs `senda` (the everyday pure-Go binary: TUI + headless
+# run/mock/docs + `senda gui` launcher) plus `senda-desktop` (the GUI app).
 
 set -eu
 
 REPO="this-senda/senda"
-BIN_NAME="senda-desktop"
-CLI_NAME="senda-cli"
+BIN_NAME="senda"
+DESKTOP_NAME="senda-desktop"
 
 # --- pretty output ----------------------------------------------------------
 if [ -t 1 ]; then
@@ -89,7 +90,7 @@ mkdir -p "$INSTALL_DIR" || die "cannot create install dir: $INSTALL_DIR"
 
 # --- download + verify ------------------------------------------------------
 # Release assets are named senda_<version>_<os>-<arch>.tar.gz and contain the
-# `senda-desktop` and `senda-cli` binaries at the archive root.
+# `senda` and `senda-desktop` binaries at the archive root.
 ASSET="senda_${VERSION}_${OS}-${ARCH}.tar.gz"
 BASE="https://github.com/${REPO}/releases/download/v${VERSION}"
 TMP="$(mktemp -d)"
@@ -125,9 +126,11 @@ tar -xzf "${TMP}/${ASSET}" -C "$TMP"
 install -m 0755 "${TMP}/${BIN_NAME}" "${INSTALL_DIR}/${BIN_NAME}"
 ok "installed ${INSTALL_DIR}/${BIN_NAME}"
 
-if [ "${SENDA_NO_CLI:-0}" != "1" ] && [ -f "${TMP}/${CLI_NAME}" ]; then
-  install -m 0755 "${TMP}/${CLI_NAME}" "${INSTALL_DIR}/${CLI_NAME}"
-  ok "installed ${INSTALL_DIR}/${CLI_NAME}"
+DESKTOP_INSTALLED=0
+if [ "${SENDA_NO_DESKTOP:-0}" != "1" ] && [ -f "${TMP}/${DESKTOP_NAME}" ]; then
+  install -m 0755 "${TMP}/${DESKTOP_NAME}" "${INSTALL_DIR}/${DESKTOP_NAME}"
+  ok "installed ${INSTALL_DIR}/${DESKTOP_NAME}"
+  DESKTOP_INSTALLED=1
 fi
 
 # Strip the quarantine flag on macOS so Gatekeeper does not block the unsigned
@@ -135,13 +138,13 @@ fi
 # defensive and harmless if the attribute is absent.
 if [ "$OS" = "darwin" ]; then
   xattr -dr com.apple.quarantine "${INSTALL_DIR}/${BIN_NAME}" 2>/dev/null || true
-  [ -f "${INSTALL_DIR}/${CLI_NAME}" ] && xattr -dr com.apple.quarantine "${INSTALL_DIR}/${CLI_NAME}" 2>/dev/null || true
+  [ -f "${INSTALL_DIR}/${DESKTOP_NAME}" ] && xattr -dr com.apple.quarantine "${INSTALL_DIR}/${DESKTOP_NAME}" 2>/dev/null || true
 fi
 
 # --- post-install notes -----------------------------------------------------
-if [ "$OS" = "linux" ]; then
+if [ "$OS" = "linux" ] && [ "$DESKTOP_INSTALLED" = "1" ]; then
   if ! ldconfig -p 2>/dev/null | grep -qiE 'libwebkitgtk-6\.0|libwebkit2gtk-4\.1'; then
-    warn "Senda's window needs a WebKitGTK runtime. Install one of:"
+    warn "The senda-desktop window needs a WebKitGTK runtime. Install one of:"
     warn "  Debian/Ubuntu: sudo apt install libwebkitgtk-6.0-4    (or libwebkit2gtk-4.1-0)"
     warn "  Arch:          sudo pacman -S webkitgtk-6.0           (or webkit2gtk-4.1)"
     warn "  Fedora:        sudo dnf install webkitgtk6.0          (or webkit2gtk4.1)"
@@ -154,4 +157,4 @@ case ":${PATH}:" in
      warn "  export PATH=\"${INSTALL_DIR}:\$PATH\"" ;;
 esac
 
-printf '\n%s\n' "${GREEN}${BOLD}Senda v${VERSION} installed.${RESET} Run ${BOLD}senda-desktop${RESET} to launch, or ${BOLD}senda-cli -h${RESET} for the runner."
+printf '\n%s\n' "${GREEN}${BOLD}Senda v${VERSION} installed.${RESET} Run ${BOLD}senda${RESET} for the terminal UI, ${BOLD}senda gui${RESET} for the desktop app, or ${BOLD}senda run -h${RESET} for the headless runner."

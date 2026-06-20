@@ -132,10 +132,10 @@ senda/
 │   ├── wsclient/ · sseclient/    # WebSocket + SSE clients
 │   ├── history/                  # JSONL-based request history
 │   ├── aigen/                    # Optional LLM-assisted assertions
+│   ├── tui/                       # Terminal UI (Bubble Tea, no webview)
 │   └── termimg/ · buildinfo/     # TUI screenshot renderer + version string
 │
-├── cmd/senda-cli/                 # CLI runner + mock subcommand (no GUI)
-├── cmd/senda-tui/                 # Terminal UI (Bubble Tea, no webview)
+├── cmd/senda/                     # Unified pure-Go binary: TUI default + run/mock/docs + gui launcher
 ├── app.go                        # Wails-bound API surface (IPC)
 ├── app_features.go               # Import, codegen, runner, mock, WS/SSE
 ├── app_security.go               # Security-scan bindings

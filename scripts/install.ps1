@@ -4,7 +4,8 @@
 
 .DESCRIPTION
     Downloads a prebuilt Senda release archive, verifies its SHA-256 checksum,
-    and installs senda.exe (desktop app) and senda-cli.exe.
+    and installs senda.exe (the everyday binary: TUI + headless run/mock/docs +
+    `senda gui` launcher) and senda-desktop.exe (the GUI app).
 
 .EXAMPLE
     irm https://raw.githubusercontent.com/this-senda/senda/main/scripts/install.ps1 | iex
@@ -15,14 +16,14 @@
 .PARAMETER InstallDir
     Target directory. Defaults to %LOCALAPPDATA%\Programs\Senda.
 
-.PARAMETER NoCli
-    Skip installing senda-cli.exe.
+.PARAMETER NoDesktop
+    Skip installing senda-desktop.exe (headless hosts).
 #>
 [CmdletBinding()]
 param(
     [string]$Version = $env:SENDA_VERSION,
     [string]$InstallDir = $env:SENDA_INSTALL_DIR,
-    [switch]$NoCli
+    [switch]$NoDesktop
 )
 
 $ErrorActionPreference = "Stop"
@@ -61,7 +62,7 @@ New-Item -ItemType Directory -Force -Path $InstallDir | Out-Null
 
 # --- download + verify ------------------------------------------------------
 # Release zips are named senda_<version>_windows-<arch>.zip and contain
-# senda.exe and senda-cli.exe at the archive root.
+# senda.exe and senda-desktop.exe at the archive root.
 $asset = "senda_${Version}_windows-${arch}.zip"
 $base  = "https://github.com/$Repo/releases/download/v$Version"
 $tmp   = Join-Path ([System.IO.Path]::GetTempPath()) ("senda_" + [System.Guid]::NewGuid().ToString("N"))
@@ -91,12 +92,12 @@ try {
     # --- extract + install --------------------------------------------------
     Expand-Archive -Path $zip -DestinationPath $tmp -Force
 
-    Copy-Item -Force (Join-Path $tmp "senda-desktop.exe") (Join-Path $InstallDir "senda-desktop.exe")
-    Ok "installed $InstallDir\senda-desktop.exe"
+    Copy-Item -Force (Join-Path $tmp "senda.exe") (Join-Path $InstallDir "senda.exe")
+    Ok "installed $InstallDir\senda.exe"
 
-    if (-not $NoCli -and (Test-Path (Join-Path $tmp "senda-cli.exe"))) {
-        Copy-Item -Force (Join-Path $tmp "senda-cli.exe") (Join-Path $InstallDir "senda-cli.exe")
-        Ok "installed $InstallDir\senda-cli.exe"
+    if (-not $NoDesktop -and (Test-Path (Join-Path $tmp "senda-desktop.exe"))) {
+        Copy-Item -Force (Join-Path $tmp "senda-desktop.exe") (Join-Path $InstallDir "senda-desktop.exe")
+        Ok "installed $InstallDir\senda-desktop.exe"
     }
 } finally {
     Remove-Item -Recurse -Force $tmp -ErrorAction SilentlyContinue
@@ -111,4 +112,4 @@ if (($userPath -split ';') -notcontains $InstallDir) {
 
 Write-Host ""
 Write-Host "Senda v$Version installed." -ForegroundColor Green -NoNewline
-Write-Host " Run 'senda' to launch, or 'senda-cli -h' for the runner."
+Write-Host " Run 'senda' for the terminal UI, 'senda gui' for the desktop app, or 'senda run -h' for the headless runner."

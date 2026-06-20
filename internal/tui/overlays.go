@@ -1,4 +1,4 @@
-package main
+package tui
 
 import (
 	"fmt"
@@ -133,7 +133,7 @@ func (m tuiModel) helpBox() string {
 		{"q / ctrl+c", "quit"},
 	}
 	var b strings.Builder
-	b.WriteString(styleTitle.Render("senda-tui — keys") + "\n\n")
+	b.WriteString(styleTitle.Render("senda — keys") + "\n\n")
 	for _, r := range rows {
 		b.WriteString(fmt.Sprintf("%s  %s\n", lipgloss.NewStyle().Foreground(colAccent).Render(fmt.Sprintf("%-16s", r[0])), r[1]))
 	}

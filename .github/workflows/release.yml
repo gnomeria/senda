@@ -4,7 +4,8 @@ name: Release
 # prerelease (v1.2.3-rc.1) is flagged as a GitHub pre-release and skips Homebrew.
 #
 # Each archive bundles two binaries at its root: the desktop app (`senda-desktop`) and
-# the headless CLI runner (`senda-cli`). Asset names follow the convention the
+# the unified pure-Go binary (`senda`: TUI + headless run/mock/docs + gui launcher).
+# Asset names follow the convention the
 # installers and packaging expect (scripts/install.{sh,ps1}, packaging/*):
 #   senda_<version>_<os>-<arch>.tar.gz   (linux, darwin)
 #   senda_<version>_<os>-<arch>.zip      (windows)
@@ -100,9 +101,9 @@ jobs:
         run: |
           VERSION="${GITHUB_REF_NAME#v}" task ${{ matrix.taskns }}:package
 
-      # senda-cli is pure Go (no webview/CGO), so the native runner produces the
+      # senda is pure Go (no webview/CGO), so the native runner produces the
       # correct arch directly. Same version stamp as the desktop binary.
-      - name: Build senda-cli
+      - name: Build senda
         shell: bash
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
@@ -110,7 +111,7 @@ jobs:
           [ "${{ matrix.os }}" = "windows" ] && ext=".exe"
           CGO_ENABLED=0 go build -trimpath \
             -ldflags="-s -w -X senda/internal/buildinfo.Version=${VERSION}" \
-            -o "bin/senda-cli${ext}" ./cmd/senda-cli
+            -o "bin/senda${ext}" ./cmd/senda
 
       - name: Archive (tar.gz)
         if: matrix.os != 'windows'
@@ -118,7 +119,7 @@ jobs:
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
           ART="senda_${VERSION}_${{ matrix.name }}.tar.gz"
-          tar -C bin -czf "$ART" senda-desktop senda-cli
+          tar -C bin -czf "$ART" senda-desktop senda
           shasum -a 256 "$ART" > "$ART.sha256"
 
       - name: Archive (zip)
@@ -127,7 +128,7 @@ jobs:
         run: |
           $v = "$env:GITHUB_REF_NAME" -replace '^v',''
           $art = "senda_${v}_${{ matrix.name }}.zip"
-          Compress-Archive -Path bin/senda-desktop.exe,bin/senda-cli.exe -DestinationPath $art
+          Compress-Archive -Path bin/senda-desktop.exe,bin/senda.exe -DestinationPath $art
           $hash = (Get-FileHash $art -Algorithm SHA256).Hash.ToLower()
           "$hash  $art" | Out-File "$art.sha256" -Encoding ascii -NoNewline
 
@@ -225,7 +226,7 @@ jobs:
             homepage "https://github.com/${GITHUB_REPOSITORY}"
 
             binary "senda-desktop"
-            binary "senda-cli"
+            binary "senda"
           end
           EOF
 

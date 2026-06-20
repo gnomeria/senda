@@ -1,7 +1,7 @@
 // Package termimg renders ANSI terminal output (the kind lipgloss/Bubble Tea
 // emit) into images, and encodes a sequence of frames into an animated GIF.
 //
-// It exists so the senda-tui documentation screenshots and the walkthrough GIF
+// It exists so the senda terminal-UI documentation screenshots and the walkthrough GIF
 // can be generated headlessly from the real tuiModel.render() output — no PTY,
 // no ffmpeg, no external capture tools. Everything is pure Go: an SGR parser
 // builds a cell grid, a cached glyph rasterizer paints it with a monospace
@@ -48,7 +48,7 @@ type Options struct {
 	FallbackPaths []string
 }
 
-// Defaults returns the options used for the senda-tui docs: a Tokyo-Night-ish
+// Defaults returns the options used for the senda terminal-UI docs: a Tokyo-Night-ish
 // dark ground matching the TUI palette, DejaVu Sans Mono primary, FreeMono
 // fallback.
 func Defaults() Options {

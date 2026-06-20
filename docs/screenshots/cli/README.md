@@ -1,15 +1,16 @@
 # CLI screenshots
 
-The still and walkthrough GIF of `senda-cli` referenced in the root README live
-here. They are generated automatically — don't edit them by hand.
+The still and walkthrough GIF of the `senda run` headless runner referenced in
+the root README live here. They are generated automatically — don't edit them by
+hand.
 
 ## Regenerating
 
 Like the TUI images, these are rendered **headlessly in pure Go** — but the
 content is a *real run*, not a storyboard. The generator stands up a local
 in-process HTTP server, writes a small temporary collection, and sends every
-request through the actual pipeline (the same path `senda-cli` uses). It then
-paints `senda-cli`'s real stdout to PNG via
+request through the actual pipeline (the same path `senda run` uses). It then
+paints `senda run`'s real stdout to PNG via
 [`internal/termimg`](../../../internal/termimg), and builds the GIF by revealing
 the run frame by frame as each result streams in. No network, no PTY, no
 `ffmpeg`.
@@ -22,7 +23,7 @@ or directly:
 
 ```bash
 SENDA_CLI_SHOTS=1 SENDA_CLI_SHOT_DIR="$PWD/docs/screenshots/cli" \
-  go test ./cmd/senda-cli -run TestCLIShot -count=1
+  go test ./cmd/senda -run TestCLIShot -count=1
 ```
 
 ### Fonts

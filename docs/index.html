@@ -583,25 +583,25 @@
             <span class="tag">Desktop</span>
             <h3>The full GUI</h3>
             <p>A native 3-pane shell built with Wails — tree, request editor, response viewer — with tabs, theming, and a command palette.</p>
-            <p class="cmd">wails3 build → bin/senda-desktop</p>
+            <p class="cmd">senda gui</p>
           </div>
         </div>
         <div class="mode reveal">
           <div class="shot"><img src="screenshots/tui/01-three-pane.png" alt="Senda terminal UI" loading="lazy"></div>
           <div class="body">
             <span class="tag">Terminal</span>
-            <h3>senda-tui</h3>
-            <p>A keyboard-driven TUI on Bubble Tea — no webview, pure Go. Perfect over SSH, in tmux, or when you'd rather not leave the terminal.</p>
-            <p class="cmd">senda-tui -collection ./my-api</p>
+            <h3>senda</h3>
+            <p>A keyboard-driven TUI on Bubble Tea — no webview, pure Go. It's what bare <code style="font-family:var(--mono)">senda</code> opens. Perfect over SSH, in tmux, or when you'd rather not leave the terminal.</p>
+            <p class="cmd">senda ./my-api</p>
           </div>
         </div>
         <div class="mode reveal">
           <div class="shot"><img src="screenshots/cli/01-run.png" alt="Senda CLI runner" loading="lazy"></div>
           <div class="body">
             <span class="tag">Headless</span>
-            <h3>senda-cli</h3>
+            <h3>senda run</h3>
             <p>The same pipeline, scriptable in CI. Exits <code style="font-family:var(--mono);color:var(--green)">0</code> when every request passes, <code style="font-family:var(--mono);color:var(--red)">1</code> on any failure.</p>
-            <p class="cmd">senda-cli -collection ./my-api -env dev</p>
+            <p class="cmd">senda run -collection ./my-api -env dev</p>
           </div>
         </div>
       </div>

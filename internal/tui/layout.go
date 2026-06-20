@@ -1,4 +1,4 @@
-package main
+package tui
 
 // paneDims is the computed geometry for the three panes. Widths/heights are
 // border-content sizes (passed to lipgloss .Width/.Height); the rendered pane

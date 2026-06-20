@@ -18,5 +18,5 @@ $packageArgs = @{
 
 Install-ChocolateyZipPackage @packageArgs
 
-# Choco auto-shims every .exe under the tools dir, so both `senda-desktop` and
-# `senda-cli` become available on PATH after install.
+# Choco auto-shims every .exe under the tools dir, so both `senda` and
+# `senda-desktop` become available on PATH after install.

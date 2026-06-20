@@ -14,8 +14,9 @@ Description: >-
   Senda is a desktop API client where every collection is a plain folder of YAML
   files. No cloud account, no proprietary sync, no binary blobs. Open a
   collection, send requests, and commit the diff. Built with Wails (Go) and
-  SolidJS for a tiny binary and low memory footprint. This package installs both
-  the desktop app (senda) and the headless CLI runner (senda-cli).
+  SolidJS for a tiny binary and low memory footprint. This package installs the
+  everyday `senda` binary (terminal UI + headless run/mock/docs + `senda gui`
+  launcher) and the `senda-desktop` GUI app.
 Moniker: senda
 Tags:
   - api
