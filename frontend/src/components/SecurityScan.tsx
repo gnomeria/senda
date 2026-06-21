@@ -187,6 +187,7 @@ export default function SecurityScan(props: {
   let offEvents: (() => void)[] = [];
 
   const start = async () => {
+    if (running()) return;
     offEvents.forEach((f) => f());
     offEvents = [];
     setSummary(null);

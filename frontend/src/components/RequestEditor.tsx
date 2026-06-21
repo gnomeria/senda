@@ -179,7 +179,7 @@ export default function RequestEditor() {
   );
 }
 
-function BulkKVSection(props: {
+export function BulkKVSection(props: {
   rows: KV[];
   onChange: (rows: KV[]) => void;
   keyPlaceholder?: string;
@@ -219,7 +219,7 @@ function BulkKVSection(props: {
   return (
     <div>
       <div class="kv-toolbar">
-        <button class="mini-btn" onClick={bulk() ? exitBulk : enterBulk}>
+        <button class="mini-btn" onClick={() => (bulk() ? exitBulk() : enterBulk())}>
           {bulk() ? "← Table" : "Bulk Edit"}
         </button>
       </div>
