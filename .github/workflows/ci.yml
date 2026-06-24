@@ -111,3 +111,43 @@ jobs:
       - name: Unit tests
         working-directory: frontend
         run: bun run test --run
+
+  e2e:
+    name: E2E smoke (WebKit)
+    runs-on: ubuntu-latest
+    needs: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Cache bun deps
+        uses: actions/cache@v4
+        with:
+          path: frontend/node_modules
+          key: bun-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('frontend/bun.lock') }}
+          restore-keys: |
+            bun-${{ runner.os }}-${{ runner.arch }}-
+
+      - name: Download generated bindings
+        uses: actions/download-artifact@v4
+        with:
+          name: wails-bindings
+          path: frontend/bindings/
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: bun install --frozen-lockfile
+
+      # Playwright's bundled WebKit ≈ the WebKitGTK runtime the app ships,
+      # without a native build. Catches drag-and-drop / prompt() / focus bugs
+      # jsdom can't. --with-deps pulls the system libs WebKit needs.
+      - name: Install Playwright WebKit
+        working-directory: frontend
+        run: bunx playwright install --with-deps webkit
+
+      - name: Run smoke tests
+        working-directory: frontend
+        run: bun run test:e2e
