@@ -5,10 +5,13 @@
     "": {
       "name": "senda-frontend",
       "dependencies": {
+        "@codemirror/autocomplete": "^6.20.3",
         "@codemirror/lang-json": "^6.0.1",
+        "@codemirror/language": "^6.12.3",
         "@codemirror/lint": "^6.9.7",
         "@codemirror/state": "^6.4.1",
         "@codemirror/view": "^6.26.3",
+        "@lezer/highlight": "^1.2.3",
         "@wailsio/runtime": "^3.0.0-alpha.79",
         "cm6-graphql": "^0.2.1",
         "codemirror": "^6.0.1",

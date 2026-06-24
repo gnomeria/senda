@@ -37,6 +37,13 @@
   --warn: #d29922;
   --err: #f85149;
   --redirect: #58a6ff;
+  /* editor syntax colours (dark fallback; theme.ts swaps per light/dark) */
+  --syn-keyword: #c678dd;
+  --syn-type: #56b6c2;
+  --syn-property: #61afef;
+  --syn-string: #98c379;
+  --syn-number: #d19a66;
+  --syn-variable: #e5c07b;
   --mono: ui-monospace, "JetBrains Mono", "SF Mono", Menlo, monospace;
   --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
@@ -2564,6 +2571,7 @@ body.dragging-splitter {
   display: flex;
   align-items: center;
   padding: 5px 12px;
+  border-left: 2px solid var(--accent);
   font-size: var(--fs-xs);
   font-weight: 600;
   color: var(--text-dim);
@@ -2964,43 +2972,47 @@ body.dragging-node * {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 4px 8px;
+  padding: 6px 10px;
   background: var(--bg-elev1);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
 .gql-error {
   font-size: var(--fs-xs);
-  color: var(--danger, #f44336);
+  color: var(--err, #f85149);
   flex: 1;
   white-space: normal;
   word-break: break-word;
 }
 .gql-schema {
-  max-height: 140px;
+  max-height: 160px;
   overflow-y: auto;
   background: var(--bg-base);
   border-bottom: 1px solid var(--border);
-  padding: 4px 8px;
+  padding: 4px 0;
   flex-shrink: 0;
 }
 .gql-type {
   display: flex;
   align-items: baseline;
-  gap: 8px;
-  padding: 2px 0;
+  gap: 10px;
+  padding: 3px 12px;
   font-size: var(--fs-xs);
-  line-height: 1.5;
+  line-height: 1.55;
+}
+.gql-type:hover {
+  background: var(--hover);
 }
 .gql-type-name {
   flex-shrink: 0;
-  color: var(--accent, #64b4ff);
+  min-width: 96px;
+  color: var(--accent, #6e8bff);
   font-weight: 600;
-  font-family: var(--font-mono);
+  font-family: var(--mono);
 }
 .gql-type-fields {
   color: var(--text-dim);
-  font-family: var(--font-mono);
+  font-family: var(--mono);
   white-space: normal;
   word-break: break-word;
 }

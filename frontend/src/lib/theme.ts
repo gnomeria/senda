@@ -403,6 +403,27 @@ export const themes: Theme[] = [
   },
 ];
 
+// Editor syntax-highlight colours. Kept out of ThemeTokens (and its tripwire
+// test) because they only need to vary by light/dark, not per theme — one
+// tuned palette each (One Dark / One Light lineage) reads well on every bg.
+// Set as --syn-* vars in applyTheme so CodeMirror can reference them via var().
+export const SYN_DARK = {
+  "--syn-keyword": "#c678dd", // query/mutation/fragment, true/false/null
+  "--syn-type": "#56b6c2", // type names
+  "--syn-property": "#61afef", // JSON keys, GraphQL fields
+  "--syn-string": "#98c379",
+  "--syn-number": "#d19a66",
+  "--syn-variable": "#e5c07b", // $vars, atoms
+};
+export const SYN_LIGHT = {
+  "--syn-keyword": "#a626a4",
+  "--syn-type": "#0184bc",
+  "--syn-property": "#4078f2",
+  "--syn-string": "#50a14f",
+  "--syn-number": "#986801",
+  "--syn-variable": "#b76b01",
+};
+
 export const lightThemes = themes.filter((t) => t.kind === "light");
 export const darkThemes = themes.filter((t) => t.kind === "dark");
 
@@ -462,6 +483,10 @@ export function applyTheme(
   root: HTMLElement = document.documentElement
 ) {
   for (const [k, v] of Object.entries(theme.tokens)) {
+    root.style.setProperty(k, v);
+  }
+  const syn = theme.kind === "light" ? SYN_LIGHT : SYN_DARK;
+  for (const [k, v] of Object.entries(syn)) {
     root.style.setProperty(k, v);
   }
   root.style.colorScheme = theme.kind; // native widgets follow the theme
