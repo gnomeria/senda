@@ -3,6 +3,7 @@
 // Exit code 0 = every request passed; 1 = at least one failure.
 //
 //	senda run -collection ./my-api [-folder auth] [-env dev] [-q]
+//	senda run -collection ./my-api --report junit [-o report.xml]
 //	senda run -collection ./my-api --docs [-o docs/api.md] [--docs-format html|md]
 package main
 
@@ -30,6 +31,7 @@ func runHeadless(args []string) {
 	docsOutput := fs.String("o", "", "output file for docs (default: stdout)")
 	docsFormat := fs.String("docs-format", "md", "docs output format: md or html")
 	dataFile := fs.String("data", "", "CSV or JSON data file for data-driven runs")
+	report := fs.String("report", "", "machine-readable run report instead of text: json or junit (to -o file or stdout)")
 	_ = fs.Parse(args)
 
 	root, err := filepath.Abs(*collPath)
@@ -77,8 +79,10 @@ func runHeadless(args []string) {
 	}
 	send := makeSend(nil)
 
+	// Report mode streams nothing — only the final report goes to stdout.
+	silent := *quiet || *report != ""
 	onResult := func(r model.RunResult) {
-		if *quiet {
+		if silent {
 			return
 		}
 		fmt.Println(formatResult(r))
@@ -91,7 +95,7 @@ func runHeadless(args []string) {
 			makeSend,
 			func(rowIdx int, r model.RunResult) {
 				ri++
-				if !*quiet {
+				if !silent {
 					fmt.Printf("[row %d] ", rowIdx+1)
 				}
 				onResult(r)
@@ -107,7 +111,22 @@ func runHeadless(args []string) {
 			passed++
 		}
 	}
-	fmt.Printf("\n%d/%d passed\n", passed, len(results))
+
+	if *report != "" {
+		out, err := renderReport(*report, results)
+		if err != nil {
+			fatal(err)
+		}
+		if *docsOutput == "" {
+			fmt.Println(string(out))
+		} else if err := os.WriteFile(*docsOutput, out, 0o644); err != nil {
+			fatal(err)
+		} else {
+			fmt.Fprintf(os.Stderr, "report written to %s\n", *docsOutput)
+		}
+	} else {
+		fmt.Printf("\n%d/%d passed\n", passed, len(results))
+	}
 	if passed != len(results) {
 		os.Exit(1)
 	}

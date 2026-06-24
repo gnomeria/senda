@@ -103,6 +103,7 @@ Usage:
   senda                       interactive terminal UI (default)
   senda tui [-collection dir] [-env name]
   senda run [-collection dir] [-folder sub] [-env name] [-q] [-data file]
+  senda run [-collection dir] --report json|junit [-o file]
   senda run --docs [-o file] [--docs-format md|html]
   senda mock [-collection dir] [-addr :8787] [-scenario name]
   senda mock init <preset> [-collection dir]
