@@ -61,18 +61,21 @@ func Defaults() Options {
 		DefaultFg: color.RGBA{0xa9, 0xb1, 0xd6, 0xff}, // colFg
 		DefaultBg: color.RGBA{0x15, 0x16, 0x1a, 0xff}, // bgApp
 		RegularPaths: envPaths("SENDA_TUI_FONT",
-			"/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
-			"/usr/share/fonts/dejavu/DejaVuSansMono.ttf",
-			"/Library/Fonts/DejaVuSansMono.ttf",
+			"/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf", // Debian/Ubuntu
+			"/usr/share/fonts/dejavu/DejaVuSansMono.ttf",          // Fedora
+			"/usr/share/fonts/TTF/DejaVuSansMono.ttf",             // Arch
+			"/Library/Fonts/DejaVuSansMono.ttf",                   // macOS
 		),
 		BoldPaths: envPaths("SENDA_TUI_FONT_BOLD",
 			"/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf",
 			"/usr/share/fonts/dejavu/DejaVuSansMono-Bold.ttf",
+			"/usr/share/fonts/TTF/DejaVuSansMono-Bold.ttf", // Arch
 			"/Library/Fonts/DejaVuSansMono-Bold.ttf",
 		),
 		FallbackPaths: envPaths("SENDA_TUI_FONT_FALLBACK",
 			"/usr/share/fonts/truetype/freefont/FreeMono.ttf",
 			"/usr/share/fonts/freefont/FreeMono.ttf",
+			"/usr/share/fonts/gnu-free/FreeMono.otf", // Arch (gnu-free-fonts)
 		),
 	}
 }

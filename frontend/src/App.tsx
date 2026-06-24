@@ -18,6 +18,7 @@ import { ICON } from "./lib/icons";
 import { api } from "./lib/api";
 import { initTheme } from "./lib/theme";
 import { refreshCollection, saveActive, sendActive } from "./lib/actions";
+import { tabCycleDir } from "./lib/keymap";
 import {
   activeTabId,
   closeTab,
@@ -90,16 +91,15 @@ export default function App() {
     const mod = e.ctrlKey || e.metaKey;
     if (!mod) return;
     // Ctrl+Tab cycles even while the palette is open; everything else below
-    // is suppressed so palette typing can't trigger app actions.
-    // Match on e.code, not e.key: on Linux/GTK, Shift+Tab emits the
-    // ISO_Left_Tab keysym, so WebKitGTK reports e.key as something other than
-    // "Tab" and Ctrl+Shift+Tab would never match. e.code is the physical key,
-    // unaffected by modifiers. stopImmediatePropagation + capture-phase
-    // listening (see onMount) beat the native focus-traversal default.
-    if (e.code === "Tab") {
+    // is suppressed so palette typing can't trigger app actions. tabCycleDir
+    // keys off e.code (see keymap.ts — Shift+Tab's ISO_Left_Tab keysym).
+    // stopImmediatePropagation + capture-phase listening (see onMount) beat
+    // the native focus-traversal default.
+    const dir = tabCycleDir(e);
+    if (dir) {
       e.preventDefault();
       e.stopImmediatePropagation();
-      cycleTab(e.shiftKey ? -1 : 1);
+      cycleTab(dir);
       return;
     }
     if (showPalette()) return;

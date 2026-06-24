@@ -43,5 +43,7 @@ export default defineConfig(({ mode }) => ({
     environment: "jsdom",
     globals: true,
     setupFiles: ["./src/test-setup.ts"],
+    // Playwright owns tests/e2e (real WebKit); keep them out of vitest/jsdom.
+    exclude: ["**/node_modules/**", "**/dist/**", "tests/e2e/**"],
   },
 }));
