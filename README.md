@@ -508,6 +508,10 @@ bin/senda run -collection ./my-api -folder auth -env dev -q   # -q = summary onl
 # Data-driven run: repeat every request once per row of a CSV/JSON file
 bin/senda run -collection ./my-api -data users.csv
 
+# Machine-readable run report for CI (json or junit XML; -o file or stdout)
+bin/senda run -collection ./my-api --report junit -o report.xml
+bin/senda run -collection ./my-api --report json
+
 # Generate API documentation (Markdown or self-contained HTML)
 bin/senda docs -collection ./my-api -o docs/api.md
 bin/senda docs -collection ./my-api --docs-format html -o docs/api.html
