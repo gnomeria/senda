@@ -18,3 +18,4 @@ body:
         }
 auth:
     type: inherit
+postScript: "pm.test(\"Status code is 200\", () => {\n  pm.response.to.have.status(200)\n})\n\npm.test(\"Response is valid JSON\", () => {\n  const responseData = pm.response.json()\n  pm.expect(responseData).to.be.an('object')\n})\n\npm.test(\"Response data types are correct\", () => {\n  const data = pm.response.json()\n  pm.expect(data).to.be.an('object')\n  pm.expect(data.data.country).to.be.an('object')\n  pm.expect(data.data.country.capital).to.be.an('string')\n  pm.expect(data.data.country.capital).to.be.an('string')\n})\n\npm.test(\"Response contains expected object\", () => {\n  const expected = {\n  \"data\": {\n    \"country\": {\n      \"capital\": \"Helsinki\",\n      \"currency\": \"EUR\",\n      \"emoji\": \"\U0001F1EB\U0001F1EE\",\n      \"name\": \"Finland\"\n    }\n  }\n}\n  pm.expect(pm.response.json()).to.deep.include(expected)\n})"
