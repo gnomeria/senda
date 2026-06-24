@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.6.0.schema.json
 PackageIdentifier: this-senda.Senda
-PackageVersion: 0.0.0
+PackageVersion: 0.1.4
 InstallerType: zip
 NestedInstallerType: portable
 NestedInstallerFiles:
@@ -10,7 +10,7 @@ NestedInstallerFiles:
     PortableCommandAlias: senda-desktop
 Installers:
   - Architecture: x64
-    InstallerUrl: https://github.com/this-senda/senda/releases/download/v0.0.0/senda_0.0.0_windows-amd64.zip
-    InstallerSha256: REPLACE_WITH_WINDOWS_AMD64_SHA256
+    InstallerUrl: https://github.com/this-senda/senda/releases/download/v0.1.4/senda_0.1.4_windows-amd64.zip
+    InstallerSha256: f7493570cee4d54a6c7062ad713cd330454e1b229dc361bdc7b47a0924f8cbb8
 ManifestType: installer
 ManifestVersion: 1.6.0

@@ -1,8 +1,8 @@
 $ErrorActionPreference = 'Stop'
 
 # Bumped per release by packaging/update.sh.
-$version  = '0.0.0'
-$checksum = 'REPLACE_WITH_WINDOWS_AMD64_SHA256'
+$version  = '0.1.4'
+$checksum = 'f7493570cee4d54a6c7062ad713cd330454e1b229dc361bdc7b47a0924f8cbb8'
 
 $packageName = 'senda'
 $toolsDir    = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"

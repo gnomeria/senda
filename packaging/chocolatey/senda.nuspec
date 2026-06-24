@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
   <metadata>
     <id>senda</id>
-    <version>0.0.0</version>
+    <version>0.1.4</version>
     <packageSourceUrl>https://github.com/this-senda/senda/tree/main/packaging/chocolatey</packageSourceUrl>
     <owners>gnomeria</owners>
     <title>Senda</title>
